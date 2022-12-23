@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -16,15 +18,22 @@ public final class Constants {
 
     public static class DriveConstants {
 
-        public static final double kDrivetrainTrackwidthMeters = 0.05;
-        public static final double kDrivetrainWheelbaseMeters = 0.05;
+        public static final double kDrivetrainTrackwidthMeters = 0.5461;
+        public static final double kDrivetrainWheelbaseMeters = 0.5461;
         
-       public static final double kFrontLeftSteerOffset = 0;
-       public static final double kFrontRightSteerOffset = 0;
-       public static final double kBackLeftSteerOffset = 0;
-       public static final double kBackRightSteerOffset = 0;
+        public static final double kFrontLeftSteerOffset = 0;
+        public static final double kFrontRightSteerOffset = 0;
+        public static final double kBackLeftSteerOffset = 0;
+        public static final double kBackRightSteerOffset = 0;
+
+        
+        public static final double MAX_VELOCITY_METERS_PER_SECOND = 6380.0 / 60.0 *
+            SdsModuleConfigurations.MK4_L1.getDriveReduction() *
+            SdsModuleConfigurations.MK4_L1.getWheelDiameter() * Math.PI;
 
 
+        public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
+        Math.hypot(kDrivetrainTrackwidthMeters / 2.0, kDrivetrainWheelbaseMeters / 2.0);
     }
 
 }
