@@ -4,9 +4,10 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.sensors.CANCoder;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
-import com.swervedrivespecialties.swervelib.Mk3SwerveModuleHelper;
+import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.Mk4ModuleConfiguration;
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
@@ -79,13 +80,19 @@ public class DriveSubsystem extends SubsystemBase {
   private DriveSubsystem() {
     ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
-    mFrontLeftModule = Mk3SwerveModuleHelper.createFalcon500Neo(
+//     CANCoder mFrontLeftCanCoder = new CANCoder(kFrontLeftSteerEncoderId);
+//     CANCoder mFrontRightCanCoder = new CANCoder(kFrontRightSteerEncoderId);
+//     CANCoder mBacktLeftCanCoder = new CANCoder(kBackLeftSteerEncoderId);
+//     CANCoder mBackRightCanCoder = new CANCoder(kBackRightSteerEncoderId);
+
+
+    mFrontLeftModule = Mk4SwerveModuleHelper.createFalcon500Neo(
             // This parameter is optional, but will allow you to see the current state of the module on the dashboard.
             tab.getLayout("Front Left Module", BuiltInLayouts.kList)
                     .withSize(2, 4)
                     .withPosition(0, 0),
             // This can either be STANDARD or FAST depending on your gear configuration
-            Mk3SwerveModuleHelper.GearRatio.STANDARD,
+            Mk4SwerveModuleHelper.GearRatio.L1,
             // This is the ID of the drive motor
             kFrontLeftDriveMotorId,
             // This is the ID of the steer motor
@@ -96,38 +103,39 @@ public class DriveSubsystem extends SubsystemBase {
             kFrontLeftSteerOffset
     );
 
-    mFrontRightModule = Mk3SwerveModuleHelper.createFalcon500Neo(
+    mFrontRightModule = Mk4SwerveModuleHelper.createFalcon500Neo(
             tab.getLayout("Front Right Module", BuiltInLayouts.kList)
                     .withSize(2, 4)
                     .withPosition(2, 0),
-            Mk3SwerveModuleHelper.GearRatio.STANDARD,
+            Mk4SwerveModuleHelper.GearRatio.L1,
             kFrontRightDriveMotorId,
             kFrontRightSteerMotorId,
             kFrontRightSteerEncoderId,
             kFrontRightSteerOffset
     );
 
-    mBackLeftModule = Mk3SwerveModuleHelper.createFalcon500Neo(
+    mBackLeftModule = Mk4SwerveModuleHelper.createFalcon500Neo(
             tab.getLayout("Back Left Module", BuiltInLayouts.kList)
                     .withSize(2, 4)
                     .withPosition(4, 0),
-            Mk3SwerveModuleHelper.GearRatio.STANDARD,
+            Mk4SwerveModuleHelper.GearRatio.L1,
             kBackLeftDriveMotorId,
             kBackLeftSteerMotorId,
             kBackLeftSteerEncoderId,
             kBackLeftSteerOffset
     );
 
-    mBackRightModule = Mk3SwerveModuleHelper.createFalcon500Neo(
+    mBackRightModule = Mk4SwerveModuleHelper.createFalcon500Neo(
             tab.getLayout("Back Right Module", BuiltInLayouts.kList)
                     .withSize(2, 4)
                     .withPosition(6, 0),
-            Mk3SwerveModuleHelper.GearRatio.STANDARD,
+            Mk4SwerveModuleHelper.GearRatio.L1,
             kBackRightDriveMotorId,
             kBackRightSteerMotorId,
             kBackRightSteerEncoderId,
             kBackRightSteerOffset
     );
+
   }
 
   /**
@@ -161,6 +169,12 @@ public class DriveSubsystem extends SubsystemBase {
     mFrontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[1].angle.getRadians());
     mBackLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[2].angle.getRadians());
     mBackRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[3].angle.getRadians());
+
+    System.out.println("Front Left: " + mFrontLeftModule.getSteerAngle());
+    System.out.println("Front Right: " + mFrontRightModule.getSteerAngle());
+    System.out.println("Back Left: " + mBackLeftModule.getSteerAngle());
+    System.out.println("Back Right: " + mBackRightModule.getSteerAngle());
+
   }
 
   public static DriveSubsystem getInstance() {

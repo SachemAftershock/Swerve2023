@@ -21,10 +21,12 @@ public final class Constants {
         public static final double kDrivetrainTrackwidthMeters = 0.5461;
         public static final double kDrivetrainWheelbaseMeters = 0.5461;
         
-        public static final double kFrontLeftSteerOffset = 0;
-        public static final double kFrontRightSteerOffset = 0;
-        public static final double kBackLeftSteerOffset = 0;
-        public static final double kBackRightSteerOffset = 0;
+        // angles in radians. 
+        // to convert from degrees to radians multiply by pi/180 
+        public static final double kFrontLeftSteerOffset = 270;
+        public static final double kFrontRightSteerOffset = 270;
+        public static final double kBackLeftSteerOffset = 270;
+        public static final double kBackRightSteerOffset = .785 + 1.5;
 
         
         public static final double MAX_VELOCITY_METERS_PER_SECOND = 6380.0 / 60.0 *
