@@ -7,6 +7,8 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Timer;
+
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.Mk4ModuleConfiguration;
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
@@ -26,6 +28,12 @@ import static frc.robot.Constants.DriveConstants.*;
 import static frc.robot.Ports.DrivePorts.*;
 
 public class DriveSubsystem extends SubsystemBase {
+
+        double frontLeft = 0.0;
+        double frontRight = 0;
+        double backLeft = 0;
+        double backRight = 0;
+        int counter = 0;
   /**
    * The maximum voltage that will be delivered to the drive motors.
    * <p>
@@ -169,17 +177,27 @@ public class DriveSubsystem extends SubsystemBase {
     mFrontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[1].angle.getRadians());
     mBackLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[2].angle.getRadians());
     mBackRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[3].angle.getRadians());
+//     System.out.println("Front Left: " + mFrontLeftModule.getDriveVelocity());
+//     System.out.println("Front Right: " + mFrontRightModule.getDriveVelocity());
+//     System.out.println("Back Left: " + mBackLeftModule.getDriveVelocity());
+//     System.out.println("Back Right: " + mBackRightModule.getDriveVelocity());
+        frontLeft += mFrontLeftModule.getDriveVelocity();
+        frontRight += mFrontRightModule.getDriveVelocity();
+        backLeft += mBackLeftModule.getDriveVelocity();
+        backRight += mBackRightModule.getDriveVelocity();
 
-    System.out.println("Front Left: " + mFrontLeftModule.getSteerAngle());
-    System.out.println("Front Right: " + mFrontRightModule.getSteerAngle());
-    System.out.println("Back Left: " + mBackLeftModule.getSteerAngle());
-    System.out.println("Back Right: " + mBackRightModule.getSteerAngle());
-
+        if(counter == 100) {
+                System.out.println("Front Left: " + frontLeft);
+                System.out.println("Front Right: " + frontRight);
+                System.out.println("Back Left: " + backLeft);
+                System.out.println("Back Right: " + backRight);
+                counter = 0;
+        }
+        counter++;
   }
 
   public static DriveSubsystem getInstance() {
         if (mDriveSubsystem == null) mDriveSubsystem = new DriveSubsystem();
         return mDriveSubsystem;
   }
-
 }

@@ -24,9 +24,9 @@ public final class Constants {
         // angles in radians. 
         // to convert from degrees to radians multiply by pi/180 
         public static final double kFrontLeftSteerOffset = -.35;
-        public static final double kFrontRightSteerOffset = .35;
+        public static final double kFrontRightSteerOffset = 0.40;
         public static final double kBackLeftSteerOffset = .45;
-        public static final double kBackRightSteerOffset = -.45;
+        public static final double kBackRightSteerOffset = -.5;
 
         
         public static final double MAX_VELOCITY_METERS_PER_SECOND = 6380.0 / 60.0 *
