@@ -1,18 +1,17 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.SwerveSubsystem;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 
 public class RotateDriveCommand extends CommandBase {
 
-    private DriveSubsystem mDrive;
+    private SwerveSubsystem mDrive;
     private double mAngularSetpoint;
-    private ChassisSpeeds m_chassisSpeeds;
     
     //Field Relative Rotation, downfield is 0deg
-    public RotateDriveCommand(DriveSubsystem drive, double setpoint) {
+    public RotateDriveCommand(SwerveSubsystem drive, double setpoint) {
         mDrive = drive;
         mAngularSetpoint = setpoint;
         addRequirements(mDrive);
@@ -39,6 +38,7 @@ public class RotateDriveCommand extends CommandBase {
     }
     @Override
     public void end(boolean interrupted) {
+        mDrive.zeroHeading();
         mDrive.drive(new ChassisSpeeds(0.0, 0.0, 0.0));
     }
 }

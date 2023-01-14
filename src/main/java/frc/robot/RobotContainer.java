@@ -1,86 +1,127 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
-import edu.wpi.first.wpilibj.GenericHID;
+import java.util.List;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.lib.AftershockXboxController;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.DriveSubsystem;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
+import edu.wpi.first.wpilibj2.command.button.Button;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.lib.AftershockXboxController;
+import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.commands.ManualDriveCommand;
-import frc.robot.commands.RotateDriveCommand;
+import frc.robot.Constants.OIConstants;
+import frc.robot.commands.SwerveJoystickCommand;
+import frc.robot.subsystems.SwerveSubsystem;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
-/**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and button mappings) should be declared here.
- */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
-  private DriveSubsystem mDriveSubsystem = DriveSubsystem.getInstance();
-  
-  private final AftershockXboxController mControllerPrimary = new AftershockXboxController(0);
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
-    // Configure the button bindings
-    configureButtonBindings();
-    mDriveSubsystem.setDefaultCommand(new ManualDriveCommand(
-            mDriveSubsystem,
-            () -> -modifyAxis(mControllerPrimary.getLeftY()) * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
-            () -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
-            () -> -modifyAxis(mControllerPrimary.getRightX()) * DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
-    ));
-  }
+    private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
 
-  public void initialize() {
-    mDriveSubsystem.initialize();
-  }
+    private final Joystick driverJoytick = new Joystick(OIConstants.kDriverControllerPort);
+    private final AftershockXboxController mControllerPrimary = new AftershockXboxController(0);
+    private JoystickButton mResetHeading;
 
-  /**
-   * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
-  private void configureButtonBindings() {}
+    public RobotContainer() {
+        // swerveSubsystem.setDefaultCommand(new SwerveJoystickCommand(
+        //         swerveSubsystem,
+        //         () -> -driverJoytick.getRawAxis(OIConstants.kDriverYAxis),
+        //         () -> driverJoytick.getRawAxis(OIConstants.kDriverXAxis),
+        //         () -> driverJoytick.getRawAxis(OIConstants.kDriverRotAxis),
+        //         () -> !driverJoytick.getRawButton(OIConstants.kDriverFieldOrientedButtonIdx)));
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    // An ExampleCommand will run in autonomous
+        swerveSubsystem.setDefaultCommand(new SwerveJoystickCommand(
+                swerveSubsystem, 
+                () -> -modifyAxis(mControllerPrimary.getLeftY()) * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
+                () -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
+                () -> -modifyAxis(mControllerPrimary.getRightX()) * DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+                () -> !driverJoytick.getRawButton(OIConstants.kDriverFieldOrientedButtonIdx)));        
+        
+        configureButtonBindings();
 
-    return new RotateDriveCommand(mDriveSubsystem, 90.0);
-
-  }
-
-  private static double deadband(double value, double deadband) {
-    if (Math.abs(value) > deadband) {
-      if (value > 0.0) {
-        return (value - deadband) / (1.0 - deadband);
-      } else {
-        return (value + deadband) / (1.0 - deadband);
-      }
-    } else {
-      return 0.0;
     }
-  }
 
-  private static double modifyAxis(double value) {
-    // Deadband
-    value = deadband(value, 0.15);
+    private void configureButtonBindings() {
+        mResetHeading = new JoystickButton(mControllerPrimary, XboxController.Button.kA.value);
+        mResetHeading.whenPressed(new InstantCommand(() -> swerveSubsystem.zeroHeading()));
+    }
 
-    // Square the axis
-    value = Math.copySign(value * value, value);
+    public void initialize() {
 
-    return value;
-  }
+    }
+    
+    public Command getAutonomousCommand() {
+        // 1. Create trajectory settings
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+                AutoConstants.kMaxSpeedMetersPerSecond,
+                AutoConstants.kMaxAccelerationMetersPerSecondSquared)
+                        .setKinematics(DriveConstants.kDriveKinematics);
+
+        // 2. Generate trajectory
+        Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+                new Pose2d(0, 0, new Rotation2d(0)),
+                List.of(
+                        new Translation2d(1, 0),
+                        new Translation2d(1, -1)),
+                new Pose2d(2, -1, Rotation2d.fromDegrees(180)),
+                trajectoryConfig);
+
+        // 3. Define PID controllers for tracking trajectory
+        PIDController xController = new PIDController(AutoConstants.kPXController, 0, 0);
+        PIDController yController = new PIDController(AutoConstants.kPYController, 0, 0);
+        ProfiledPIDController thetaController = new ProfiledPIDController(
+                AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+        // 4. Construct command to follow trajectory
+        SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
+                trajectory,
+                swerveSubsystem::getPose,
+                DriveConstants.kDriveKinematics,
+                xController,
+                yController,
+                thetaController,
+                swerveSubsystem::setModuleStates,
+                swerveSubsystem);
+
+        // 5. Add some init and wrap-up, and return everything
+        return new SequentialCommandGroup(
+                new InstantCommand(() -> swerveSubsystem.resetOdometry(trajectory.getInitialPose())),
+                swerveControllerCommand,
+                new InstantCommand(() -> swerveSubsystem.stopModules()));
+    }
+
+    private static double deadband(double value, double deadband) {
+        if (Math.abs(value) > deadband) {
+          if (value > 0.0) {
+            return (value - deadband) / (1.0 - deadband);
+          } else {
+            return (value + deadband) / (1.0 - deadband);
+          }
+        } else {
+          return 0.0;
+        }
+      }
+    
+      private static double modifyAxis(double value) {
+        // Deadband
+        value = deadband(value, 0.15);
+    
+        // Square the axis
+        value = Math.copySign(value * value, value);
+    
+        return value;
+      }
+
 }
-
