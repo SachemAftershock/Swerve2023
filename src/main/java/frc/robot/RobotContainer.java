@@ -10,7 +10,8 @@ import frc.lib.AftershockXboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.commands.DefaultDriveCommand;
+import frc.robot.commands.ManualDriveCommand;
+import frc.robot.commands.RotateDriveCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -28,12 +29,16 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
-    mDriveSubsystem.setDefaultCommand(new DefaultDriveCommand(
+    mDriveSubsystem.setDefaultCommand(new ManualDriveCommand(
             mDriveSubsystem,
             () -> -modifyAxis(mControllerPrimary.getLeftY()) * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
             () -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
             () -> -modifyAxis(mControllerPrimary.getRightX()) * DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
     ));
+  }
+
+  public void initialize() {
+    mDriveSubsystem.initialize();
   }
 
   /**
@@ -51,7 +56,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return null;
+
+    return new RotateDriveCommand(mDriveSubsystem, 90.0);
+
   }
 
   private static double deadband(double value, double deadband) {

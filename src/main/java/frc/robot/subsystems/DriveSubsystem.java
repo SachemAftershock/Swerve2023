@@ -5,9 +5,14 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.CANCoder;
+import com.fasterxml.jackson.databind.util.RootNameLookup;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.pidwrappers.PIDAnalogAccelerometer;
+import frc.lib.AftershockSubsystem;
+import frc.lib.PID;
+import frc.lib.Util;
 
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.Mk4ModuleConfiguration;
@@ -27,13 +32,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.DriveConstants.*;
 import static frc.robot.Ports.DrivePorts.*;
 
-public class DriveSubsystem extends SubsystemBase {
+public class DriveSubsystem extends AftershockSubsystem {
 
-        double frontLeft = 0.0;
-        double frontRight = 0;
-        double backLeft = 0;
-        double backRight = 0;
-        int counter = 0;
+		private static DriveSubsystem mInstance;
+
+		double frontLeft = 0.0;
+		double frontRight = 0;
+		double backLeft = 0;
+		double backRight = 0;
+		int counter = 0;
+
   /**
    * The maximum voltage that will be delivered to the drive motors.
    * <p>
@@ -64,14 +72,14 @@ public class DriveSubsystem extends SubsystemBase {
 //           Math.hypot(kDrivetrainTrackwidthMeters / 2.0, kDrivetrainWheelbaseMeters / 2.0);
 
   private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
-          // Front left
-          new Translation2d(kDrivetrainTrackwidthMeters / 2.0, kDrivetrainWheelbaseMeters / 2.0),
-          // Front right
-          new Translation2d(kDrivetrainTrackwidthMeters / 2.0, -kDrivetrainWheelbaseMeters / 2.0),
-          // Back left
-          new Translation2d(-kDrivetrainTrackwidthMeters / 2.0, kDrivetrainWheelbaseMeters / 2.0),
-          // Back right
-          new Translation2d(-kDrivetrainTrackwidthMeters / 2.0, -kDrivetrainWheelbaseMeters / 2.0)
+		  // Front left
+		  new Translation2d(kDrivetrainTrackwidthMeters / 2.0, kDrivetrainWheelbaseMeters / 2.0),
+		  // Front right
+		  new Translation2d(kDrivetrainTrackwidthMeters / 2.0, -kDrivetrainWheelbaseMeters / 2.0),
+		  // Back left
+		  new Translation2d(-kDrivetrainTrackwidthMeters / 2.0, kDrivetrainWheelbaseMeters / 2.0),
+		  // Back right
+		  new Translation2d(-kDrivetrainTrackwidthMeters / 2.0, -kDrivetrainWheelbaseMeters / 2.0)
   );
 
   private final AHRS m_navx = new AHRS(SPI.Port.kMXP, (byte) 200); // NavX connected over MXP
@@ -85,8 +93,14 @@ public class DriveSubsystem extends SubsystemBase {
 
   private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
+  private PID mDriveLinearPID = new PID();
+  private PID mDriveAngularPID = new PID();
+
+  private double mAngularSetpoint; 
+  private double mLinearSetpoint; 
+
   private DriveSubsystem() {
-    ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
+	ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
 //     CANCoder mFrontLeftCanCoder = new CANCoder(kFrontLeftSteerEncoderId);
 //     CANCoder mFrontRightCanCoder = new CANCoder(kFrontRightSteerEncoderId);
@@ -94,55 +108,55 @@ public class DriveSubsystem extends SubsystemBase {
 //     CANCoder mBackRightCanCoder = new CANCoder(kBackRightSteerEncoderId);
 
 
-    mFrontLeftModule = Mk4SwerveModuleHelper.createFalcon500Neo(
-            // This parameter is optional, but will allow you to see the current state of the module on the dashboard.
-            tab.getLayout("Front Left Module", BuiltInLayouts.kList)
-                    .withSize(2, 4)
-                    .withPosition(0, 0),
-            // This can either be STANDARD or FAST depending on your gear configuration
-            Mk4SwerveModuleHelper.GearRatio.L1,
-            // This is the ID of the drive motor
-            kFrontLeftDriveMotorId,
-            // This is the ID of the steer motor
-            kFrontLeftSteerMotorId,
-            // This is the ID of the steer encoder
-            kFrontLeftSteerEncoderId,
-            // This is how much the steer encoder is offset from true zero (In our case, zero is facing straight forward)
-            kFrontLeftSteerOffset
-    );
+	mFrontLeftModule = Mk4SwerveModuleHelper.createFalcon500Neo(
+			// This parameter is optional, but will allow you to see the current state of the module on the dashboard.
+			tab.getLayout("Front Left Module", BuiltInLayouts.kList)
+					.withSize(2, 4)
+					.withPosition(0, 0),
+			// This can either be STANDARD or FAST depending on your gear configuration
+			Mk4SwerveModuleHelper.GearRatio.L1,
+			// This is the ID of the drive motor
+			kFrontLeftDriveMotorId,
+			// This is the ID of the steer motor
+			kFrontLeftSteerMotorId,
+			// This is the ID of the steer encoder
+			kFrontLeftSteerEncoderId,
+			// This is how much the steer encoder is offset from true zero (In our case, zero is facing straight forward)
+			kFrontLeftSteerOffset
+	);
 
-    mFrontRightModule = Mk4SwerveModuleHelper.createFalcon500Neo(
-            tab.getLayout("Front Right Module", BuiltInLayouts.kList)
-                    .withSize(2, 4)
-                    .withPosition(2, 0),
-            Mk4SwerveModuleHelper.GearRatio.L1,
-            kFrontRightDriveMotorId,
-            kFrontRightSteerMotorId,
-            kFrontRightSteerEncoderId,
-            kFrontRightSteerOffset
-    );
+	mFrontRightModule = Mk4SwerveModuleHelper.createFalcon500Neo(
+			tab.getLayout("Front Right Module", BuiltInLayouts.kList)
+					.withSize(2, 4)
+					.withPosition(2, 0),
+			Mk4SwerveModuleHelper.GearRatio.L1,
+			kFrontRightDriveMotorId,
+			kFrontRightSteerMotorId,
+			kFrontRightSteerEncoderId,
+			kFrontRightSteerOffset
+	);
 
-    mBackLeftModule = Mk4SwerveModuleHelper.createFalcon500Neo(
-            tab.getLayout("Back Left Module", BuiltInLayouts.kList)
-                    .withSize(2, 4)
-                    .withPosition(4, 0),
-            Mk4SwerveModuleHelper.GearRatio.L1,
-            kBackLeftDriveMotorId,
-            kBackLeftSteerMotorId,
-            kBackLeftSteerEncoderId,
-            kBackLeftSteerOffset
-    );
+	mBackLeftModule = Mk4SwerveModuleHelper.createFalcon500Neo(
+			tab.getLayout("Back Left Module", BuiltInLayouts.kList)
+					.withSize(2, 4)
+					.withPosition(4, 0),
+			Mk4SwerveModuleHelper.GearRatio.L1,
+			kBackLeftDriveMotorId,
+			kBackLeftSteerMotorId,
+			kBackLeftSteerEncoderId,
+			kBackLeftSteerOffset
+	);
 
-    mBackRightModule = Mk4SwerveModuleHelper.createFalcon500Neo(
-            tab.getLayout("Back Right Module", BuiltInLayouts.kList)
-                    .withSize(2, 4)
-                    .withPosition(6, 0),
-            Mk4SwerveModuleHelper.GearRatio.L1,
-            kBackRightDriveMotorId,
-            kBackRightSteerMotorId,
-            kBackRightSteerEncoderId,
-            kBackRightSteerOffset
-    );
+	mBackRightModule = Mk4SwerveModuleHelper.createFalcon500Neo(
+			tab.getLayout("Back Right Module", BuiltInLayouts.kList)
+					.withSize(2, 4)
+					.withPosition(6, 0),
+			Mk4SwerveModuleHelper.GearRatio.L1,
+			kBackRightDriveMotorId,
+			kBackRightSteerMotorId,
+			kBackRightSteerEncoderId,
+			kBackRightSteerOffset
+	);
 
   }
 
@@ -151,13 +165,14 @@ public class DriveSubsystem extends SubsystemBase {
    * 'forwards' direction.
    */
   public void zeroGyroscope() {
-    m_navx.zeroYaw();
+	m_navx.zeroYaw();
   }
 
+ 
   public Rotation2d getGyroscopeRotation() {
    if (m_navx.isMagnetometerCalibrated()) {
-     // We will only get valid fused headings if the magnetometer is calibrated
-     return Rotation2d.fromDegrees(m_navx.getFusedHeading());
+	 // We will only get valid fused headings if the magnetometer is calibrated
+	 return Rotation2d.fromDegrees(m_navx.getFusedHeading());
    }
 
    // We have to invert the angle of the NavX so that rotating the robot counter-clockwise makes the angle increase.
@@ -165,39 +180,100 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void drive(ChassisSpeeds chassisSpeeds) {
-    m_chassisSpeeds = chassisSpeeds;
+	m_chassisSpeeds = chassisSpeeds;
   }
 
   @Override
-  public void periodic() {
-    SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
-    SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
+  public void initialize() {
 
-    mFrontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[0].angle.getRadians());
-    mFrontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[1].angle.getRadians());
-    mBackLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[2].angle.getRadians());
-    mBackRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[3].angle.getRadians());
+	mAngularSetpoint = 0.0;
+	mLinearSetpoint = 0.0;
+
+	zeroGyroscope();
+
+  }
+
+
+  @Override
+  public void periodic() {
+	SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
+	SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
+
+	mFrontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[0].angle.getRadians());
+	mFrontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[1].angle.getRadians());
+	mBackLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[2].angle.getRadians());
+	mBackRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[3].angle.getRadians());
 //     System.out.println("Front Left: " + mFrontLeftModule.getDriveVelocity());
 //     System.out.println("Front Right: " + mFrontRightModule.getDriveVelocity());
 //     System.out.println("Back Left: " + mBackLeftModule.getDriveVelocity());
 //     System.out.println("Back Right: " + mBackRightModule.getDriveVelocity());
-        frontLeft += mFrontLeftModule.getDriveVelocity();
-        frontRight += mFrontRightModule.getDriveVelocity();
-        backLeft += mBackLeftModule.getDriveVelocity();
-        backRight += mBackRightModule.getDriveVelocity();
+		frontLeft += mFrontLeftModule.getDriveVelocity();
+		frontRight += mFrontRightModule.getDriveVelocity();
+		backLeft += mBackLeftModule.getDriveVelocity();
+		backRight += mBackRightModule.getDriveVelocity();
 
-        if(counter == 100) {
-                System.out.println("Front Left: " + frontLeft);
-                System.out.println("Front Right: " + frontRight);
-                System.out.println("Back Left: " + backLeft);
-                System.out.println("Back Right: " + backRight);
-                counter = 0;
-        }
-        counter++;
+		if(counter == 100) {
+				// System.out.println("Front Left: " + frontLeft);
+				// System.out.println("Front Right: " + frontRight);
+				// System.out.println("Back Left: " + backLeft);
+				// System.out.println("Back Right: " + backRight);
+				counter = 0;
+
+				System.out.println("GYRO ANGLE --> " + m_navx.getAngle());
+		}
+		counter++;
+
+
+		
   }
 
-  public static DriveSubsystem getInstance() {
-        if (mDriveSubsystem == null) mDriveSubsystem = new DriveSubsystem();
-        return mDriveSubsystem;
+  public void setAutoRotate(double setpoint) {
+
+		mAngularSetpoint = setpoint; //+ Util.normalizeAngle(getGyroscopeRotation().getDegrees());
+		mDriveAngularPID.start(kDriveAngularGains);
+
+		System.out.println("Starting auto rotate setpoint --> " + setpoint);
+
   }
+
+  public void runAutoRotate() {
+
+		double currentAngle = Util.normalizeAngle(getGyroscopeRotation().getDegrees());
+		double update = mDriveAngularPID.updateRotation(currentAngle, mAngularSetpoint) * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.5;
+		m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, update);
+
+		System.out.println("Running auto rotate angle --> " + currentAngle + " PID --> " + mDriveAngularPID.getError());
+
+  }
+
+  public boolean isAutoRotateFinished() {
+	  return Math.abs(mDriveAngularPID.getError()) < kAutoRotateEpsilon;
+  }
+
+  @Override
+  public boolean checkSystem() {
+		return true;
+	}
+  
+
+//   public static DriveSuUbsystem getInstance() {
+//         if (mDriveSubsystem == null) mDriveSubsystem = new DriveSubsystem();
+//         return mDriveSubsystem;
+//   }
+
+	@Override
+	public void outputTelemetry() {
+
+	}
+
+
+
+
+  public synchronized static DriveSubsystem getInstance() {
+		if (mInstance == null) {
+			mInstance = new DriveSubsystem();
+		}
+		return mInstance;
+	}
+
 }
