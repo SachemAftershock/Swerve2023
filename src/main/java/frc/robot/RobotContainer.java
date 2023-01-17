@@ -4,14 +4,22 @@
 
 package frc.robot;
 
+import java.util.List;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.lib.AftershockXboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.commands.FollowTrajectoryCommand;
 import frc.robot.commands.ManualDriveCommand;
-import frc.robot.commands.RotateDriveCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -55,9 +63,25 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An ExampleCommand will run in autonomous
+    TrajectoryConfig config = new TrajectoryConfig(
+      DriveConstants.MAX_VELOCITY_METERS_PER_SECOND, 
+      DriveConstants.kMaxAccelerationMetersPerSecondSquared
+    );
 
-    return new RotateDriveCommand(mDriveSubsystem, 90.0);
+    Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+      new Pose2d(), 
+      List.of(
+        new Translation2d(1, 1), 
+        new Translation2d(2, -1)
+      ),
+      new Pose2d(3, 0, new Rotation2d()), 
+      config
+    );
+
+    return new FollowTrajectoryCommand(mDriveSubsystem, trajectory);
+
+
+    //return new RotateDriveCommand(mDriveSubsystem, 90.0);
 
   }
 

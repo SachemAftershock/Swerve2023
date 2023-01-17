@@ -21,6 +21,9 @@ public final class Constants {
         public static final double[] kDriveAngularGains = {0.00001, 0.1, 0.01};
         public static final double[] kDriveLinearGains = {0.0, 0.0, 0.0};
 
+        public static final double kPX = 1.25;
+        public static final double kPY = 1.25;
+
         public static final double kAutoRotateEpsilon = 3.0;
         public static final double kLinearDriveEpsilon = 0.0;
         
@@ -40,6 +43,8 @@ public final class Constants {
             SdsModuleConfigurations.MK4_L1.getDriveReduction() *
             SdsModuleConfigurations.MK4_L1.getWheelDiameter() * Math.PI;
 
+        //TODO: Change
+        public static final double kMaxAccelerationMetersPerSecondSquared = MAX_VELOCITY_METERS_PER_SECOND * 0.25;
 
         public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
         Math.hypot(kDrivetrainTrackwidthMeters / 2.0, kDrivetrainWheelbaseMeters / 2.0);
