@@ -72,13 +72,9 @@ public class DriveSubsystem extends AftershockSubsystem {
 			// Back right
 			new Translation2d(-kDrivetrainTrackwidthMeters / 2.0, -kDrivetrainWheelbaseMeters / 2.0));
 
-	private final SwerveDriveOdometry mOdometry = new SwerveDriveOdometry(
-		mKinematics, 
-		getGyroscopeRotation(),
-		new Pose2d()
-	);
+	private final SwerveDriveOdometry mOdometry;
 
-	private final AHRS m_navx = new AHRS(SPI.Port.kMXP, (byte) 200); // NavX connected over MXP
+	private final AHRS m_navx; // NavX connected over MXP
 
 	private final SwerveModule mFrontLeftModule;
 	private final SwerveModule mFrontRightModule;
@@ -89,6 +85,14 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 	private DriveSubsystem() {
 		ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
+
+		m_navx = new AHRS(SPI.Port.kMXP, (byte) 200);
+
+		mOdometry = new SwerveDriveOdometry(
+			mKinematics, 
+			getGyroscopeRotation(),
+			new Pose2d()
+		);
 
 		mFrontLeftModule = Mk4SwerveModuleHelper.createFalcon500Neo(
 				// This parameter is optional, but will allow you to see the current state of

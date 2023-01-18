@@ -18,7 +18,7 @@ public final class Constants {
 
     public static class DriveConstants {
 
-        public static final double[] kDriveAngularGains = {0.00001, 0.1, 0.01};
+        public static final double[] kDriveAngularGains = {0.02, 0.0, 0.0}; //dont use I it sucks - Shreyas
         public static final double[] kDriveLinearGains = {0.0, 0.0, 0.0};
 
         public static final double kPX = 1.25;

@@ -13,13 +13,16 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.lib.AftershockXboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.FollowTrajectoryCommand;
 import frc.robot.commands.ManualDriveCommand;
+import frc.robot.commands.RotateDriveCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -32,6 +35,7 @@ public class RobotContainer {
   private DriveSubsystem mDriveSubsystem = DriveSubsystem.getInstance();
   
   private final AftershockXboxController mControllerPrimary = new AftershockXboxController(0);
+  private final Joystick mControllerSecondary = new Joystick(1);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -41,7 +45,7 @@ public class RobotContainer {
             mDriveSubsystem,
             () -> -modifyAxis(mControllerPrimary.getLeftY()) * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
             () -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
-            () -> -modifyAxis(mControllerPrimary.getRightX()) * DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+            () -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.3
     ));
   }
 
@@ -64,7 +68,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     TrajectoryConfig config = new TrajectoryConfig(
-      DriveConstants.MAX_VELOCITY_METERS_PER_SECOND, 
+      DriveConstants.MAX_VELOCITY_METERS_PER_SECOND * 0.3, 
       DriveConstants.kMaxAccelerationMetersPerSecondSquared
     );
 
@@ -79,6 +83,7 @@ public class RobotContainer {
     );
 
     return new FollowTrajectoryCommand(mDriveSubsystem, trajectory);
+    //return new RotateDriveCommand(mDriveSubsystem, 90);
 
 
     //return new RotateDriveCommand(mDriveSubsystem, 90.0);

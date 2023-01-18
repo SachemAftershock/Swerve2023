@@ -46,11 +46,16 @@ public class FollowTrajectoryCommand extends CommandBase {
             mDrive.getKinematics(),
             new PIDController(kPX, 0, 0), new PIDController(kPY, 0, 0), thetaController, 
             mDrive::drive,
-            mDrive).andThen(() -> mDrive.drive(new ChassisSpeeds())).schedule();
+            mDrive)
+            .andThen(() -> mDrive.drive(new ChassisSpeeds()))
+            .andThen(() -> System.out.println("HERE"))
+            .andThen(new RotateDriveCommand(mDrive, 90))
+            .schedule();
     }
 
     @Override
     public void end(boolean interrupted) {
+        System.out.println("END");
         mDrive.drive(new ChassisSpeeds());
     }
 }
