@@ -8,11 +8,16 @@ import frc.lib.AftershockSubsystem;
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
+
+import edu.wpi.first.math.MatBuilder;
+import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -72,9 +77,10 @@ public class DriveSubsystem extends AftershockSubsystem {
 			// Back right
 			new Translation2d(-kDrivetrainTrackwidthMeters / 2.0, -kDrivetrainWheelbaseMeters / 2.0));
 
-	private final SwerveDriveOdometry mOdometry;
+	private final AHRS mNavx; // NavX connected over MXP
 
-	private final AHRS m_navx; // NavX connected over MXP
+	private final SwerveDrivePoseEstimator mPoseEstimator;
+	private final PhotonCamera mPhotonCamera;
 
 	private final SwerveModule mFrontLeftModule;
 	private final SwerveModule mFrontRightModule;
@@ -86,13 +92,18 @@ public class DriveSubsystem extends AftershockSubsystem {
 	private DriveSubsystem() {
 		ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
-		m_navx = new AHRS(SPI.Port.kMXP, (byte) 200);
+		mNavx = new AHRS(SPI.Port.kMXP, (byte) 200);
 
-		mOdometry = new SwerveDriveOdometry(
-			mKinematics, 
-			getGyroscopeRotation(),
-			new Pose2d()
+		mPoseEstimator = new SwerveDrivePoseEstimator(
+			new Rotation2d(),
+			new Pose2d(),
+			mKinematics,
+			new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.01,0.02,0.02),
+			new MatBuilder<>(Nat.N1(), Nat.N1()).fill(0.01),
+			new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.1,0.1,0.01)
 		);
+
+		mPhotonCamera = new PhotonCamera("photonvision");
 
 		mFrontLeftModule = Mk4SwerveModuleHelper.createFalcon500Neo(
 				// This parameter is optional, but will allow you to see the current state of
@@ -150,18 +161,18 @@ public class DriveSubsystem extends AftershockSubsystem {
 	 * 'forwards' direction.
 	 */
 	public void zeroGyroscope() {
-		m_navx.zeroYaw();
+		mNavx.zeroYaw();
 	}
 
 	public Rotation2d getGyroscopeRotation() {
-		if (m_navx.isMagnetometerCalibrated()) {
+		if (mNavx.isMagnetometerCalibrated()) {
 			// We will only get valid fused headings if the magnetometer is calibrated
-			return Rotation2d.fromDegrees(m_navx.getFusedHeading());
+			return Rotation2d.fromDegrees(mNavx.getFusedHeading());
 		}
 
 		// We have to invert the angle of the NavX so that rotating the robot
 		// counter-clockwise makes the angle increase.
-		return Rotation2d.fromDegrees(360.0 - m_navx.getYaw());
+		return Rotation2d.fromDegrees(360.0 - mNavx.getYaw());
 	}
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
@@ -174,34 +185,38 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 	@Override
 	public void initialize() {
-		mOdometry.resetPosition(new Pose2d(), new Rotation2d());
+		mPoseEstimator.resetPosition(new Pose2d(), new Rotation2d());
 		zeroGyroscope();
 	}
 
 	@Override
 	public void periodic() {
-		mOdometry.update(getGyroscopeRotation(), 
+		mPoseEstimator.update(getGyroscopeRotation(), 
 			new SwerveModuleState(mFrontLeftModule.getDriveVelocity(), new Rotation2d(mFrontLeftModule.getSteerAngle())),
 			new SwerveModuleState(mFrontRightModule.getDriveVelocity(), new Rotation2d(mFrontRightModule.getSteerAngle())),
 			new SwerveModuleState(mBackLeftModule.getDriveVelocity(), new Rotation2d(mBackLeftModule.getSteerAngle())),
 			new SwerveModuleState(mBackRightModule.getDriveVelocity(), new Rotation2d(mBackRightModule.getSteerAngle()))
 		);
 
-		SwerveModuleState[] states = mKinematics.toSwerveModuleStates(mChassisSpeeds);
-		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
+		//var result = mPhotonCamera.getLatestResult();
 
-		mFrontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+		//mPoseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds);
+
+		SwerveModuleState[] states = mKinematics.toSwerveModuleStates(mChassisSpeeds);
+		SwerveDriveKinematics.desaturateWheelSpeeds(states, kMaxVelocityMetersPerSecond);
+
+		mFrontLeftModule.set(states[0].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
 				states[0].angle.getRadians());
-		mFrontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+		mFrontRightModule.set(states[1].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
 				states[1].angle.getRadians());
-		mBackLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+		mBackLeftModule.set(states[2].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
 				states[2].angle.getRadians());
-		mBackRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+		mBackRightModule.set(states[3].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
 				states[3].angle.getRadians());
 	}
 
 	public Pose2d getPose() {
-		return mOdometry.getPoseMeters();
+		return mPoseEstimator.getEstimatedPosition();
 	}
 
 	public SwerveDriveKinematics getKinematics() {

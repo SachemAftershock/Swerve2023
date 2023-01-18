@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.commands.FollowTrajectoryCommand;
+import frc.robot.commands.FollowTrajectoryCommandFactory;
 import frc.robot.commands.ManualDriveCommand;
 import frc.robot.commands.RotateDriveCommand;
 
@@ -43,9 +43,9 @@ public class RobotContainer {
     configureButtonBindings();
     mDriveSubsystem.setDefaultCommand(new ManualDriveCommand(
             mDriveSubsystem,
-            () -> -modifyAxis(mControllerPrimary.getLeftY()) * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
-            () -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
-            () -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.3
+            () -> -modifyAxis(mControllerPrimary.getLeftY()) * DriveConstants.kMaxVelocityMetersPerSecond,
+            () -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond,
+            () -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
     ));
   }
 
@@ -68,7 +68,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     TrajectoryConfig config = new TrajectoryConfig(
-      DriveConstants.MAX_VELOCITY_METERS_PER_SECOND * 0.3, 
+      DriveConstants.kMaxVelocityMetersPerSecond * 0.3, 
       DriveConstants.kMaxAccelerationMetersPerSecondSquared
     );
 
@@ -82,12 +82,10 @@ public class RobotContainer {
       config
     );
 
-    return new FollowTrajectoryCommand(mDriveSubsystem, trajectory);
-    //return new RotateDriveCommand(mDriveSubsystem, 90);
-
-
-    //return new RotateDriveCommand(mDriveSubsystem, 90.0);
-
+    return new SequentialCommandGroup(
+      FollowTrajectoryCommandFactory.generateCommand(mDriveSubsystem, trajectory),
+      new RotateDriveCommand(mDriveSubsystem, 90)
+    );
   }
 
   private static double deadband(double value, double deadband) {

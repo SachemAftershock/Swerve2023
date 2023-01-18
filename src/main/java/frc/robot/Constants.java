@@ -39,15 +39,17 @@ public final class Constants {
         public static final double kBackRightSteerOffset = -.5;
 
         
-        public static final double MAX_VELOCITY_METERS_PER_SECOND = 6380.0 / 60.0 *
+        public static final double kMaxVelocityMetersPerSecond = 6380.0 / 60.0 *
             SdsModuleConfigurations.MK4_L1.getDriveReduction() *
             SdsModuleConfigurations.MK4_L1.getWheelDiameter() * Math.PI;
 
         //TODO: Change
-        public static final double kMaxAccelerationMetersPerSecondSquared = MAX_VELOCITY_METERS_PER_SECOND * 0.25;
+        public static final double kMaxAccelerationMetersPerSecondSquared = kMaxVelocityMetersPerSecond * 0.25;
 
-        public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
+        public static final double kMaxAngularVelocityRadiansPerSecond = kMaxVelocityMetersPerSecond /
         Math.hypot(kDrivetrainTrackwidthMeters / 2.0, kDrivetrainWheelbaseMeters / 2.0);
+
+        public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI;
     }
 
 }

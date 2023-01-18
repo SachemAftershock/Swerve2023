@@ -32,7 +32,7 @@ public class RotateDriveCommand extends CommandBase {
     public void execute() {
         double currentAngle = Util.normalizeAngle(mDrive.getGyroscopeRotation().getDegrees());
 		double rotationSpeed = mPid.updateRotation(currentAngle, mAngularSetpoint)
-				* DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.5;
+				* DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.5;
         
         mDrive.drive(new ChassisSpeeds(0, 0, rotationSpeed));
     }
