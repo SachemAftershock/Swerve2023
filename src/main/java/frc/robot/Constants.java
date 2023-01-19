@@ -18,11 +18,15 @@ public final class Constants {
 
     public static class DriveConstants {
 
+        public static enum CardinalDirection {
+            eX, eY
+        }
+
         public static final double kDriveControllerDeadband = 0.05;
         public static final boolean kSquareAxis = true; 
 
         public static final double[] kDriveAngularGains = {0.02, 0.0, 0.0}; //dont use I it sucks - Shreyas
-        public static final double[] kDriveLinearGains = {0.0, 0.0, 0.0};
+        public static final double[] kDriveLinearGains = {0.02, 0.0, 0.0};
 
         public static final double kPX = 1.25;
         public static final double kPY = 1.25;
