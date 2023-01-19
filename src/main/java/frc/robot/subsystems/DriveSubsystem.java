@@ -8,8 +8,8 @@ import frc.lib.AftershockSubsystem;
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 
-import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonUtils;
+//import org.photonvision.PhotonCamera;
+//import org.photonvision.PhotonUtils;
 
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Nat;
@@ -80,7 +80,7 @@ public class DriveSubsystem extends AftershockSubsystem {
 	private final AHRS mNavx; // NavX connected over MXP
 
 	private final SwerveDrivePoseEstimator mPoseEstimator;
-	private final PhotonCamera mPhotonCamera;
+	//private final PhotonCamera mPhotonCamera;
 
 	private final SwerveModule mFrontLeftModule;
 	private final SwerveModule mFrontRightModule;
@@ -103,7 +103,7 @@ public class DriveSubsystem extends AftershockSubsystem {
 			new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.1,0.1,0.01)
 		);
 
-		mPhotonCamera = new PhotonCamera("photonvision");
+		//mPhotonCamera = new PhotonCamera("photonvision");
 
 		mFrontLeftModule = Mk4SwerveModuleHelper.createFalcon500Neo(
 				// This parameter is optional, but will allow you to see the current state of

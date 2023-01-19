@@ -75,16 +75,33 @@ public class RobotContainer {
     Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
       new Pose2d(), 
       List.of(
-        new Translation2d(1, 1), 
-        new Translation2d(2, -1)
+        new Translation2d(0, 1.0), 
+        new Translation2d(0, 1.2)//,
+        //new Translation2d(1, 1.5)
+        //new Translation2d(2.2,0)
       ),
-      new Pose2d(3, 0, new Rotation2d()), 
+      new Pose2d(1, 1.5, new Rotation2d()), 
       config
     );
 
+    Trajectory trajectory2 = TrajectoryGenerator.generateTrajectory(
+      new Pose2d(), 
+      List.of( 
+        new Translation2d(0.5, 1.5),
+        new Translation2d(1.0, 1.5),
+        new Translation2d(1.5, 1.5)
+      ),
+      new Pose2d(1.5, 1.5, new Rotation2d()),
+      config
+    );
+
+
     return new SequentialCommandGroup(
       FollowTrajectoryCommandFactory.generateCommand(mDriveSubsystem, trajectory),
-      new RotateDriveCommand(mDriveSubsystem, 90)
+      //new RotateDriveCommand(mDriveSubsystem, 90),
+      FollowTrajectoryCommandFactory.generateCommand(mDriveSubsystem, trajectory2)
+      //new RotateDriveCommand(mDriveSubsystem, -30)
+
     );
   }
 
@@ -102,10 +119,12 @@ public class RobotContainer {
 
   private static double modifyAxis(double value) {
     // Deadband
-    value = deadband(value, 0.15);
+    value = deadband(value, DriveConstants.kDriveControllerDeadband);
 
     // Square the axis
-    value = Math.copySign(value * value, value);
+    if(DriveConstants.kSquareAxis) {
+      value = Math.copySign(value * value, value);
+    }
 
     return value;
   }
