@@ -1,7 +1,11 @@
 package frc.lib;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -9,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * 
  * @author Dan Waxman
  * @author Shreyas Prasad
+ * @author Ty McKeon
 */
 public class Limelight {
 	
@@ -108,6 +113,46 @@ public class Limelight {
 	 */
 	public double getTl() {
 		return getValue("tl").getDouble(kDefaultValue);
+	}
+
+
+/**
+	 * 
+	 * Gets the robots pose in field space space as computed by solvepnp (x,y,z,rx,ry,rz).
+	 * <p>
+	 * Will return null if no targets are found.
+	 * <p>
+	 * Requires a third part JSON library https://mvnrepository.com/artifact/org.json/json
+	 * 
+	 * @return Matrix of Robot Pose in field space for each target
+	 * <p>
+	 * <li> Null if no targets found
+	 */
+	public double[][] getBotPose() {
+		
+		try {
+			String rawJSON = getValue("json").getString(""); //get the JSON dump from NetworkTables
+			if (rawJSON.isEmpty()) return null;
+
+			JSONObject json = new JSONObject(rawJSON);
+			JSONObject jsonResults = json.getJSONObject("Results");
+			JSONArray targets = jsonResults.getJSONArray("Fiducial");
+
+			double[][] result = new double[targets.length()][6];
+
+			for (int i = 0; i < targets.length(); i++) {
+				JSONArray poseValues = targets.getJSONObject(i).getJSONArray("t6r_fs");
+				for (int j = 0; j < poseValues.length(); j++) {
+					result[i][j] = poseValues.getDouble(j);
+				}
+			}
+
+			return result;
+		} catch (Exception e) {
+			DriverStation.reportError("Grave error with limelight parsing", e.getStackTrace());
+		}
+		
+		return null;
 	}
 
 	/**
