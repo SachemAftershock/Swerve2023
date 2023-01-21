@@ -1,19 +1,16 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
+import com.swervedrivespecialties.swervelib.SwerveModule;
 
 import edu.wpi.first.wpilibj.SPI;
 import frc.lib.AftershockSubsystem;
 
-import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
-import com.swervedrivespecialties.swervelib.SwerveModule;
 
 //import org.photonvision.PhotonCamera;
 //import org.photonvision.PhotonUtils;
 
-import edu.wpi.first.math.MatBuilder;
-import edu.wpi.first.math.Nat;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -26,6 +23,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 import static frc.robot.Constants.DriveConstants.*;
 import static frc.robot.Ports.DrivePorts.*;
+
 
 public class DriveSubsystem extends AftershockSubsystem {
 	private static DriveSubsystem mInstance;
@@ -79,7 +77,7 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 	private final AHRS mNavx; // NavX connected over MXP
 
-	private final SwerveDrivePoseEstimator mPoseEstimator;
+	//private final SwerveDrivePoseEstimator mPoseEstimator;
 	//private final PhotonCamera mPhotonCamera;
 
 	private final SwerveModule mFrontLeftModule;
@@ -94,14 +92,14 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 		mNavx = new AHRS(SPI.Port.kMXP, (byte) 200);
 
-		mPoseEstimator = new SwerveDrivePoseEstimator(
-			new Rotation2d(),
-			new Pose2d(),
-			mKinematics,
-			new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.01,0.02,0.02),
-			new MatBuilder<>(Nat.N1(), Nat.N1()).fill(0.01),
-			new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.1,0.1,0.01)
-		);
+		// mPoseEstimator = new SwerveDrivePoseEstimator(
+		// 	new Rotation2d(),
+		// 	new Pose2d(),
+		// 	mKinematics,
+		// 	new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.01,0.02,0.02),
+		// 	new MatBuilder<>(Nat.N1(), Nat.N1()).fill(0.01),
+		// 	new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.1,0.1,0.01)
+		// );
 
 		//mPhotonCamera = new PhotonCamera("photonvision");
 
@@ -185,18 +183,18 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 	@Override
 	public void initialize() {
-		mPoseEstimator.resetPosition(new Pose2d(), new Rotation2d());
+		//mPoseEstimator.resetPosition(new Pose2d(), new Rotation2d());
 		zeroGyroscope();
 	}
 
 	@Override
 	public void periodic() {
-		mPoseEstimator.update(getGyroscopeRotation(), 
-			new SwerveModuleState(mFrontLeftModule.getDriveVelocity(), new Rotation2d(mFrontLeftModule.getSteerAngle())),
-			new SwerveModuleState(mFrontRightModule.getDriveVelocity(), new Rotation2d(mFrontRightModule.getSteerAngle())),
-			new SwerveModuleState(mBackLeftModule.getDriveVelocity(), new Rotation2d(mBackLeftModule.getSteerAngle())),
-			new SwerveModuleState(mBackRightModule.getDriveVelocity(), new Rotation2d(mBackRightModule.getSteerAngle()))
-		);
+		// mPoseEstimator.update(getGyroscopeRotation(), 
+		// 	new SwerveModuleState(mFrontLeftModule.getDriveVelocity(), new Rotation2d(mFrontLeftModule.getSteerAngle())),
+		// 	new SwerveModuleState(mFrontRightModule.getDriveVelocity(), new Rotation2d(mFrontRightModule.getSteerAngle())),
+		// 	new SwerveModuleState(mBackLeftModule.getDriveVelocity(), new Rotation2d(mBackLeftModule.getSteerAngle())),
+		// 	new SwerveModuleState(mBackRightModule.getDriveVelocity(), new Rotation2d(mBackRightModule.getSteerAngle()))
+		// );
 
 		//var result = mPhotonCamera.getLatestResult();
 
@@ -216,7 +214,7 @@ public class DriveSubsystem extends AftershockSubsystem {
 	}
 
 	public Pose2d getPose() {
-		return mPoseEstimator.getEstimatedPosition();
+		return new Pose2d(); // mPoseEstimator.getEstimatedPosition();
 	}
 
 	public SwerveDriveKinematics getKinematics() {

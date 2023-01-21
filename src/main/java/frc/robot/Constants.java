@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -45,10 +44,13 @@ public final class Constants {
         public static final double kBackLeftSteerOffset = .45;
         public static final double kBackRightSteerOffset = -.5;
 
+
+        private static final double kMk4L1DriveReduction = (14.0 / 50.0) * (25.0 / 19.0) * (15.0 / 45.0);
+        private static final double kMk4WheelDiameter = 0.10033;
+
         
         public static final double kMaxVelocityMetersPerSecond = 6380.0 / 60.0 *
-            SdsModuleConfigurations.MK4_L1.getDriveReduction() *
-            SdsModuleConfigurations.MK4_L1.getWheelDiameter() * Math.PI;
+            kMk4L1DriveReduction * kMk4WheelDiameter * Math.PI;
 
         //TODO: Change
         public static final double kMaxAccelerationMetersPerSecondSquared = kMaxVelocityMetersPerSecond * 0.25;

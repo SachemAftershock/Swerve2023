@@ -4,7 +4,8 @@ pluginManagement {
     repositories {
         mavenLocal()
         gradlePluginPortal()
-        String frcYear = '2022'
+        maven { url 'https://jitpack.io' }
+        String frcYear = '2023'
         File frcHome
         if (OperatingSystem.current().isWindows()) {
             String publicFolder = System.getenv('PUBLIC')

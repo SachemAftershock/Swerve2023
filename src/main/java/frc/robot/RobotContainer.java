@@ -22,7 +22,6 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.FollowTrajectoryCommandFactory;
 import frc.robot.commands.ManualDriveCommand;
-import frc.robot.commands.RotateDriveCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
