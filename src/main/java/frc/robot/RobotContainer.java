@@ -20,7 +20,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.DriveConstants.CardinalDirection;
 import frc.robot.commands.FollowTrajectoryCommandFactory;
+import frc.robot.commands.LinearDriveCommand;
 import frc.robot.commands.ManualDriveCommand;
 
 /**
@@ -74,12 +76,12 @@ public class RobotContainer {
     Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
       new Pose2d(), 
       List.of(
-        new Translation2d(0, 1.0), 
-        new Translation2d(0, 1.2)//,
+        new Translation2d(1.0, -0.5)
+        //new Translation2d(0, 1.2)//,
         //new Translation2d(1, 1.5)
         //new Translation2d(2.2,0)
       ),
-      new Pose2d(1, 1.5, new Rotation2d()), 
+      new Pose2d(1.0, -0.4, new Rotation2d()), 
       config
     );
 
@@ -94,14 +96,17 @@ public class RobotContainer {
       config
     );
 
+    return new LinearDriveCommand(mDriveSubsystem, -1.0, CardinalDirection.eY);
 
-    return new SequentialCommandGroup(
-      FollowTrajectoryCommandFactory.generateCommand(mDriveSubsystem, trajectory),
-      //new RotateDriveCommand(mDriveSubsystem, 90),
-      FollowTrajectoryCommandFactory.generateCommand(mDriveSubsystem, trajectory2)
-      //new RotateDriveCommand(mDriveSubsystem, -30)
 
-    );
+    // return new SequentialCommandGroup(
+    //   //FollowTrajectoryCommandFactory.generateCommand(mDriveSubsystem, trajectory),
+    //   //new RotateDriveCommand(mDriveSubsystem, 90),
+    //   //FollowTrajectoryCommandFactory.generateCommand(mDriveSubsystem, trajectory2)
+    //   //new RotateDriveCommand(mDriveSubsystem, -30)
+
+
+    // );
   }
 
   private static double deadband(double value, double deadband) {

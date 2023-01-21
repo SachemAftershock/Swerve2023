@@ -29,6 +29,13 @@ public class LinearDriveCommand extends CommandBase {
     @Override
     public void initialize() {
         mCurrentPose = 0.0;
+
+        if(mDirection == CardinalDirection.eY) {
+            mLinearSetpoint += mDrive.getPose().getY();
+        } else {
+            mLinearSetpoint += mDrive.getPose().getX();
+        }
+
         mPid.start(DriveConstants.kDriveLinearGains); //TODO: tune pid values
         System.out.println("Linear Drive Command started : Current Pose --> " + mDrive.getPose() + " Setpoint " + mLinearSetpoint);
     }
@@ -50,8 +57,10 @@ public class LinearDriveCommand extends CommandBase {
             direction = false;
         }
 
-		double speed = mPid.updateRotation(mCurrentPose, mLinearSetpoint) 
-            * DriveConstants.kMaxAccelerationMetersPerSecondSquared * 0.5;
+		double speed = mPid.update(mCurrentPose, mLinearSetpoint) 
+            * DriveConstants.kMaxVelocityMetersPerSecond;
+
+        System.out.println(speed);
         
         
         if(direction) {

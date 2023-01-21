@@ -1,8 +1,14 @@
 package frc.lib;
 
+import java.sql.Time;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.ctre.phoenixpro.Timestamp;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -22,7 +28,7 @@ public class Limelight {
 	private final String mTableName;
 
 	public final static double kDefaultValue = 9999.9;
-
+	
 	/**
 	 * Creates a new Limelight Object
 	 * @param tableName The name of the Limelight's NetworkTable
@@ -128,7 +134,7 @@ public class Limelight {
 	 * <p>
 	 * <li> Null if no targets found
 	 */
-	public double[][] getBotPose() {
+	public FluidicalPoseInfo getBotPose() {
 		
 		try {
 			String rawJSON = getValue("json").getString(""); //get the JSON dump from NetworkTables
@@ -136,18 +142,22 @@ public class Limelight {
 
 			JSONObject json = new JSONObject(rawJSON);
 			JSONObject jsonResults = json.getJSONObject("Results");
+			double timestamp = jsonResults.getDouble("ts");
 			JSONArray targets = jsonResults.getJSONArray("Fiducial");
 
-			double[][] result = new double[targets.length()][6];
+			if(targets.length() == 0) {
+				return null;
+			}
+
+			Pose2d[] result = new Pose2d[targets.length()];
 
 			for (int i = 0; i < targets.length(); i++) {
 				JSONArray poseValues = targets.getJSONObject(i).getJSONArray("t6r_fs");
-				for (int j = 0; j < poseValues.length(); j++) {
-					result[i][j] = poseValues.getDouble(j);
-				}
+				result[i] = new Pose2d(poseValues.getDouble(0), poseValues.getDouble(1),
+					new Rotation2d(poseValues.getDouble(4), poseValues.getDouble(5)));
 			}
 
-			return result;
+			return new FluidicalPoseInfo(result, timestamp);
 		} catch (Exception e) {
 			DriverStation.reportError("Grave error with limelight parsing", e.getStackTrace());
 		}
@@ -206,5 +216,24 @@ public class Limelight {
 		SmartDashboard.putNumber(mTableName + " ta", getTa());
 		SmartDashboard.putNumber(mTableName + " ts", getTs());
 		SmartDashboard.putNumber(mTableName + " tl", getTl());
+	}
+
+	public class FluidicalPoseInfo {
+
+		public Pose2d[] mPose2d;
+		public double mTimestampSeconds;
+
+		public FluidicalPoseInfo(Pose2d[] pose, double timestampSeconds) {
+			mPose2d = pose;
+			mTimestampSeconds = timestampSeconds/1000.0; //converting time to seconds
+		}
+
+		public double getTimestamp() {
+			return mTimestampSeconds;
+		}
+
+		public Pose2d[] getPose2d() {
+			return mPose2d;
+		}
 	}
 }

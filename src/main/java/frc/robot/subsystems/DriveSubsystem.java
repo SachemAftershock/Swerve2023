@@ -6,6 +6,8 @@ import com.swervedrivespecialties.swervelib.SwerveModule;
 
 import edu.wpi.first.wpilibj.SPI;
 import frc.lib.AftershockSubsystem;
+import frc.lib.Limelight;
+import frc.lib.Limelight.FluidicalPoseInfo;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 
 //import org.photonvision.PhotonCamera;
@@ -88,6 +90,8 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 	private ChassisSpeeds mChassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
+	private final Limelight mLimelight;
+	
 	private DriveSubsystem() {
 		ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
@@ -150,6 +154,9 @@ public class DriveSubsystem extends AftershockSubsystem {
 			getPositions(),
 			new Pose2d()
 		);
+
+		mLimelight = new Limelight("limelight");
+
 	}
 
 	/**
@@ -188,8 +195,20 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 	@Override
 	public void periodic() {
+
+		FluidicalPoseInfo poseInfo = mLimelight.getBotPose();
+		Pose2d[] mPose;
+		double mTimeStamp = 0;
+		
+		if(mLimelight.getBotPose() != null) {
+			mPose = poseInfo.getPose2d();
+			mTimeStamp = poseInfo.getTimestamp();
+			mPoseEstimator.addVisionMeasurement(mPose[0], mTimeStamp);
+		}
+
 		mPoseEstimator.update(getGyroscopeRotation(), getPositions());
 
+		
 		//var result = mPhotonCamera.getLatestResult();
 
 		//mPoseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds);
@@ -205,10 +224,14 @@ public class DriveSubsystem extends AftershockSubsystem {
 				states[2].angle.getRadians());
 		mBackRightModule.set(states[3].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
 				states[3].angle.getRadians());
+
+
+		System.out.println(mPoseEstimator.getEstimatedPosition());
+
 	}
 
 	public Pose2d getPose() {
-		return new Pose2d(); // mPoseEstimator.getEstimatedPosition();
+		return mPoseEstimator.getEstimatedPosition();
 	}
 
 	public SwerveModulePosition[] getPositions() {

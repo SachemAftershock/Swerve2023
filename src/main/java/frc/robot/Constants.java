@@ -25,7 +25,7 @@ public final class Constants {
         public static final boolean kSquareAxis = true; 
 
         public static final double[] kDriveAngularGains = {0.02, 0.0, 0.0}; //dont use I it sucks - Shreyas
-        public static final double[] kDriveLinearGains = {0.02, 0.0, 0.0};
+        public static final double[] kDriveLinearGains = {0.4, 0.0, 0.0};
 
         public static final double kPX = 1.25;
         public static final double kPY = 1.25;
@@ -39,10 +39,10 @@ public final class Constants {
         
         // angles in radians. 
         // to convert from degrees to radians multiply by pi/180 
-        public static final double kFrontLeftSteerOffset = -.35;
-        public static final double kFrontRightSteerOffset = 0.40;
-        public static final double kBackLeftSteerOffset = .45;
-        public static final double kBackRightSteerOffset = -.5;
+        public static final double kFrontLeftSteerOffset = -0.35 + (Math.PI / 2.0);//-.35;
+        public static final double kFrontRightSteerOffset = 0.4 + (Math.PI / 2.0);//0.40;
+        public static final double kBackLeftSteerOffset = 0.45 + (Math.PI / 2.0);//.45;
+        public static final double kBackRightSteerOffset = -0.5 + (Math.PI / 2.0);//-.5;
 
 
         private static final double kMk4L1DriveReduction = (14.0 / 50.0) * (25.0 / 19.0) * (15.0 / 45.0);
