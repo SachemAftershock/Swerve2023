@@ -147,6 +147,10 @@ public class DriveSubsystem extends AftershockSubsystem {
 				kBackRightSteerEncoderId,
 				kBackRightSteerOffset);
 
+		mFrontLeftModule.setCanStatusFramePeriodReductions();
+		mFrontRightModule.setCanStatusFramePeriodReductions();
+		mBackLeftModule.setCanStatusFramePeriodReductions();
+		mBackRightModule.setCanStatusFramePeriodReductions();
 
 		mPoseEstimator = new SwerveDrivePoseEstimator(
 			mKinematics,
