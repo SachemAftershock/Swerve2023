@@ -230,7 +230,7 @@ public class DriveSubsystem extends AftershockSubsystem {
 				states[3].angle.getRadians());
 
 
-		System.out.println(mPoseEstimator.getEstimatedPosition());
+		//System.out.println(mPoseEstimator.getEstimatedPosition());
 
 	}
 
