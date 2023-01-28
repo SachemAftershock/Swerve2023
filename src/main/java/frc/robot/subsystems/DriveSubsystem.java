@@ -95,6 +95,8 @@ public class DriveSubsystem extends AftershockSubsystem {
 	private DriveSubsystem() {
 		ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
+
+		
 		mNavx = new AHRS(SPI.Port.kMXP, (byte) 200);
 
 		//mPhotonCamera = new PhotonCamera("photonvision");
