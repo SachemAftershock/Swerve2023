@@ -76,7 +76,7 @@ public class RobotContainer {
     Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
       new Pose2d(), 
       List.of(
-        new Translation2d(1.0, -0.5)
+        new Translation2d(2.0, -0.5)
         //new Translation2d(0, 1.2)//,
         //new Translation2d(1, 1.5)
         //new Translation2d(2.2,0)
@@ -96,7 +96,7 @@ public class RobotContainer {
       config
     );
 
-    return new LinearDriveCommand(mDriveSubsystem, -1.0, CardinalDirection.eY);
+    return new LinearDriveCommand(mDriveSubsystem, 2.0, CardinalDirection.eX);
 
 
     // return new SequentialCommandGroup(
