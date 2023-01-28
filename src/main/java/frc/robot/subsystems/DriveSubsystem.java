@@ -1,23 +1,23 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
+import com.swervedrivespecialties.swervelib.SwerveModule;
 
 import edu.wpi.first.wpilibj.SPI;
 import frc.lib.AftershockSubsystem;
-
-import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
-import com.swervedrivespecialties.swervelib.SwerveModule;
+import frc.lib.Limelight;
+import frc.lib.Limelight.FluidicalPoseInfo;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 
 //import org.photonvision.PhotonCamera;
 //import org.photonvision.PhotonUtils;
 
-import edu.wpi.first.math.MatBuilder;
-import edu.wpi.first.math.Nat;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 import static frc.robot.Constants.DriveConstants.*;
 import static frc.robot.Ports.DrivePorts.*;
+
 
 public class DriveSubsystem extends AftershockSubsystem {
 	private static DriveSubsystem mInstance;
@@ -89,19 +90,14 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 	private ChassisSpeeds mChassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
+	private final Limelight mLimelight;
+	
 	private DriveSubsystem() {
 		ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
-		mNavx = new AHRS(SPI.Port.kMXP, (byte) 200);
 
-		mPoseEstimator = new SwerveDrivePoseEstimator(
-			new Rotation2d(),
-			new Pose2d(),
-			mKinematics,
-			new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.01,0.02,0.02),
-			new MatBuilder<>(Nat.N1(), Nat.N1()).fill(0.01),
-			new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.1,0.1,0.01)
-		);
+		
+		mNavx = new AHRS(SPI.Port.kMXP, (byte) 200);
 
 		//mPhotonCamera = new PhotonCamera("photonvision");
 
@@ -153,6 +149,20 @@ public class DriveSubsystem extends AftershockSubsystem {
 				kBackRightSteerEncoderId,
 				kBackRightSteerOffset);
 
+		mFrontLeftModule.setCanStatusFramePeriodReductions();
+		mFrontRightModule.setCanStatusFramePeriodReductions();
+		mBackLeftModule.setCanStatusFramePeriodReductions();
+		mBackRightModule.setCanStatusFramePeriodReductions();
+
+		mPoseEstimator = new SwerveDrivePoseEstimator(
+			mKinematics,
+			new Rotation2d(),
+			getPositions(),
+			new Pose2d()
+		);
+
+		mLimelight = new Limelight("limelight");
+
 	}
 
 	/**
@@ -185,19 +195,26 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 	@Override
 	public void initialize() {
-		mPoseEstimator.resetPosition(new Pose2d(), new Rotation2d());
+		//mPoseEstimator.resetPosition(new Pose2d(), new Rotation2d());
 		zeroGyroscope();
 	}
 
 	@Override
 	public void periodic() {
-		mPoseEstimator.update(getGyroscopeRotation(), 
-			new SwerveModuleState(mFrontLeftModule.getDriveVelocity(), new Rotation2d(mFrontLeftModule.getSteerAngle())),
-			new SwerveModuleState(mFrontRightModule.getDriveVelocity(), new Rotation2d(mFrontRightModule.getSteerAngle())),
-			new SwerveModuleState(mBackLeftModule.getDriveVelocity(), new Rotation2d(mBackLeftModule.getSteerAngle())),
-			new SwerveModuleState(mBackRightModule.getDriveVelocity(), new Rotation2d(mBackRightModule.getSteerAngle()))
-		);
 
+		FluidicalPoseInfo poseInfo = mLimelight.getBotPose();
+		Pose2d[] mPose;
+		double mTimeStamp = 0;
+		
+		if(mLimelight.getBotPose() != null) {
+			mPose = poseInfo.getPose2d();
+			mTimeStamp = poseInfo.getTimestamp();
+			mPoseEstimator.addVisionMeasurement(mPose[0], mTimeStamp);
+		}
+
+		mPoseEstimator.update(getGyroscopeRotation(), getPositions());
+
+		
 		//var result = mPhotonCamera.getLatestResult();
 
 		//mPoseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds);
@@ -213,10 +230,23 @@ public class DriveSubsystem extends AftershockSubsystem {
 				states[2].angle.getRadians());
 		mBackRightModule.set(states[3].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
 				states[3].angle.getRadians());
+
+
+		//System.out.println(mPoseEstimator.getEstimatedPosition());
+
 	}
 
 	public Pose2d getPose() {
 		return mPoseEstimator.getEstimatedPosition();
+	}
+
+	public SwerveModulePosition[] getPositions() {
+		return new SwerveModulePosition[] {
+			new SwerveModulePosition(mFrontLeftModule.getPosition(), new Rotation2d(mFrontLeftModule.getSteerAngle())),
+			new SwerveModulePosition(mFrontRightModule.getPosition(), new Rotation2d(mFrontRightModule.getSteerAngle())),
+			new SwerveModulePosition(mBackLeftModule.getPosition(), new Rotation2d(mBackLeftModule.getSteerAngle())),
+			new SwerveModulePosition(mBackRightModule.getPosition(), new Rotation2d(mBackRightModule.getSteerAngle())),
+		};
 	}
 
 	public SwerveDriveKinematics getKinematics() {
