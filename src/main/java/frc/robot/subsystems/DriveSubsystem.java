@@ -203,15 +203,11 @@ public class DriveSubsystem extends AftershockSubsystem {
 	public void periodic() {
 
 		FluidicalPoseInfo poseInfo = mLimelight.getBotPose();
-		Pose2d[] mPose;
-		double mTimeStamp = 0;
 
 		System.out.println(poseInfo);
 		
-		if(poseInfo != null) {
-			mPose = poseInfo.getPose2d();
-			mTimeStamp = poseInfo.getTimestamp();
-			mPoseEstimator.addVisionMeasurement(mPose[0], mTimeStamp);
+		if(poseInfo != null && poseInfo.isValidTarget()) {
+			mPoseEstimator.addVisionMeasurement(poseInfo.getPose(), poseInfo.getTimestamp());
 		}
 
 		mPoseEstimator.update(getGyroscopeRotation(), getPositions());

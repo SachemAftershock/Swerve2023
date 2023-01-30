@@ -1,10 +1,14 @@
 package frc.lib;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -115,66 +119,53 @@ public class Limelight {
 	}
 
 
-// /**
-// 	 * 
-// 	 * Gets the robots pose in field space space as computed by solvepnp (x,y,z,rx,ry,rz).
-// 	 * <p>
-// 	 * Will return null if no targets are found.
-// 	 * <p>
-// 	 * Requires a third part JSON library https://mvnrepository.com/artifact/org.json/json
-// 	 * 
-// 	 * @return Matrix of Robot Pose in field space for each target
-// 	 * <p>
-// 	 * <li> Null if no targets found
-// 	 */
-// 	public FluidicalPoseInfo getBotPose() {
-		
-// 		try {
-// 			String rawJSON = getValue("json").getString(""); //get the JSON dump from NetworkTables
-// 			if (rawJSON.isEmpty()) return null;
-
-// 			JSONObject json = new JSONObject(rawJSON);
-// 			JSONObject jsonResults = json.getJSONObject("Results");
-// 			double timestamp = jsonResults.getDouble("ts");
-// 			JSONArray targets = jsonResults.getJSONArray("Fiducial");
-
-// 			if (targets.length() == 0) return null;
-
-// 			Pose2d[] result = new Pose2d[targets.length()];
-
-// 			for (int i = 0; i < targets.length(); i++) {
-// 				JSONArray poseValues = targets.getJSONObject(i).getJSONArray("t6r_fs");
-// 				result[i] = new Pose2d(poseValues.getDouble(0), poseValues.getDouble(1),
-// 					new Rotation2d(poseValues.getDouble(4), poseValues.getDouble(5)));
-// 			}
-
-// 			return new FluidicalPoseInfo(result, timestamp);
-// 		} catch (Exception e) {
-// 			DriverStation.reportError("Grave error with limelight parsing", e.getStackTrace());
-// 		}
-		
-// 		return null;
-
-// 	}
-
-	/**
+/**
 	 * 
 	 * Gets the robots pose in field space space as computed by solvepnp (x,y,z,rx,ry,rz).
 	 * <p>
 	 * Will return null if no targets are found.
+	 * <p>
+	 * Requires a third part JSON library https://mvnrepository.com/artifact/org.json/json
 	 * 
-	 * @return Robot Pose in field space
+	 * @return Matrix of Robot Pose in field space for each target
 	 * <p>
 	 * <li> Null if no targets found
 	 */
-	public Pose2d getBotPose() {
-		double[] megaPose = getValue("botpose").getDoubleArray(new double[]{});
-		if (megaPose.length == 0) return null;
+	public FluidicalPoseInfo getBotPose() {
+		try {
+			String rawJSON = getValue("json").getString(""); //get the JSON dump from NetworkTables
+			if (rawJSON.isEmpty()) return null;
 
-		return new Pose2d(
-			new Translation2d(megaPose[0], megaPose[1]), 
-			new Rotation2d(megaPose[3], megaPose[4])
-		);
+			JSONObject json = new JSONObject(rawJSON);
+			JSONObject jsonResults = json.getJSONObject("Results");
+			boolean validTarget = jsonResults.getInt("v") == 1;
+			double timestamp = jsonResults.getDouble("ts");
+
+			Alliance alliance = DriverStation.getAlliance();
+			String allianceSidePose;
+
+			if(alliance == Alliance.Blue) {
+				allianceSidePose = "botpose_wpiblue";
+			} else if(alliance == Alliance.Red) {
+				allianceSidePose = "botpose_wpired";
+			} else {
+				throw new Exception("Alliance not Found!");
+			}
+
+			JSONArray poseArray = jsonResults.getJSONArray(allianceSidePose);
+
+			Pose2d fieldRelativePose = new Pose2d(
+					poseArray.getDouble(0), poseArray.getDouble(1),
+					new Rotation2d(poseArray.getDouble(4), poseArray.getDouble(5))
+			);
+	
+			return new FluidicalPoseInfo(fieldRelativePose, validTarget, timestamp);
+		} catch (Exception e) {
+			DriverStation.reportError("Grave error with limelight parsing", e.getStackTrace());
+		}
+		
+		return null;
+
 	}
 
 	/**
@@ -232,12 +223,14 @@ public class Limelight {
 
 	public class FluidicalPoseInfo {
 
-		public Pose2d mPose2d;
-		public double mTimestampSeconds;
+		private Pose2d mPose2d;
+		private boolean mValidTarget;
+		private double mTimestampSeconds;
 
-		public FluidicalPoseInfo(Pose2d pose, double timestampSeconds) {
+		public FluidicalPoseInfo(Pose2d pose, boolean validTarget, double timestampMs) {
 			mPose2d = pose;
-			mTimestampSeconds = timestampSeconds/1000.0; //converting time to seconds
+			mValidTarget = validTarget;
+			mTimestampSeconds = timestampMs/1000.0; //converting time to seconds
 		}
 
 		public double getTimestamp() {
@@ -248,9 +241,14 @@ public class Limelight {
 			return mPose2d;
 		}
 
+		public boolean isValidTarget() {
+			return mValidTarget;
+		}
+
 		@Override
 		public String toString() {
-			return mTimestampSeconds + ": " + mPose2d.toString();
+			String prefix = mValidTarget ? "" : "[X]";
+			return prefix + mTimestampSeconds + ": " + mPose2d.toString();
 		}
 	}
 }
