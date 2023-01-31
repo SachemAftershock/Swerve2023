@@ -156,7 +156,7 @@ public class Limelight {
 
 			Pose2d fieldRelativePose = new Pose2d(
 					poseArray.getDouble(0), poseArray.getDouble(1),
-					new Rotation2d(poseArray.getDouble(4), poseArray.getDouble(5))
+					new Rotation2d(poseArray.getDouble(3), poseArray.getDouble(4))
 			);
 	
 			return new FluidicalPoseInfo(fieldRelativePose, validTarget, timestamp);
@@ -166,6 +166,36 @@ public class Limelight {
 		
 		return null;
 
+	}
+
+	public FluidicalPoseInfo getBotPoseViaNetworkTables() {
+		
+		try {
+			Alliance alliance = DriverStation.getAlliance();
+			if (alliance == Alliance.Invalid) throw new Exception("Alliance not Found!");
+
+			String allianceSidePose = alliance == Alliance.Blue ? "botpose_wpiblue" : "botpose_wpired";
+			double[] result = getValue(allianceSidePose).getDoubleArray(new double[]{});
+
+			double ts = getValue("ts").getDouble(-1);
+			int tv = (int) getValue("tv").getInteger(0l);
+			
+			if (ts == -1) throw new Exception("No timestamp found");
+			if (result.length == 0) throw new Error("No targets found");
+
+			boolean isValid = tv == 1;
+
+			Pose2d fieldRelativePose = new Pose2d(
+				result[0], result[1], 
+				new Rotation2d(result[3], result[4])
+			);
+
+			return new FluidicalPoseInfo(fieldRelativePose, isValid, ts);
+		} catch (Exception e) {
+			DriverStation.reportError("Gave error with Limelight Pose", e.getStackTrace());
+		}
+		
+		return null;
 	}
 
 	/**
