@@ -24,6 +24,8 @@ import frc.robot.Constants.DriveConstants.CardinalDirection;
 import frc.robot.commands.FollowTrajectoryCommandFactory;
 import frc.robot.commands.LinearDriveCommand;
 import frc.robot.commands.ManualDriveCommand;
+import frc.robot.commands.StrafeAlignCommand;
+import frc.robot.commands.StrafeAlignThenRotateCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -96,8 +98,8 @@ public class RobotContainer {
       config
     );
 
-    return new LinearDriveCommand(mDriveSubsystem, 2.0, CardinalDirection.eX);
-
+    //return new LinearDriveCommand(mDriveSubsystem, 2.0, CardinalDirection.eX);
+    return new StrafeAlignThenRotateCommand(mDriveSubsystem, mDriveSubsystem.getLimelight());
 
     // return new SequentialCommandGroup(
     //   //FollowTrajectoryCommandFactory.generateCommand(mDriveSubsystem, trajectory),

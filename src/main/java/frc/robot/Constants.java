@@ -26,6 +26,7 @@ public final class Constants {
 
         public static final double[] kDriveAngularGains = {0.02, 0.0, 0.0}; //dont use I it sucks - Shreyas
         public static final double[] kDriveLinearGains = {0.4, 0.0, 0.0};
+        public static final double[] kStrafeAlignGainse = {0.01, 0, 0};
 
         public static final double kPX = 1.25;
         public static final double kPY = 1.25;
@@ -59,6 +60,9 @@ public final class Constants {
         Math.hypot(kDrivetrainTrackwidthMeters / 2.0, kDrivetrainWheelbaseMeters / 2.0);
 
         public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI;
+
+        public static final double kLimelightOutOfBounds = 45;
+        public static final double kStrafeAlignEpsilon = .75;
     }
 
 

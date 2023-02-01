@@ -141,18 +141,23 @@ public class Limelight {
 			boolean validTarget = jsonResults.getInt("v") == 1;
 			double timestamp = jsonResults.getDouble("ts");
 
-			Alliance alliance = DriverStation.getAlliance();
-			String allianceSidePose;
+			JSONArray targets = jsonResults.getJSONArray("Fiducial");
 
-			if(alliance == Alliance.Blue) {
-				allianceSidePose = "botpose_wpiblue";
-			} else if(alliance == Alliance.Red) {
-				allianceSidePose = "botpose_wpired";
-			} else {
-				throw new Exception("Alliance not Found!");
+			int largestAreaIndex = 0;
+			double largestAreaSize = 0;
+
+			for (int i = 0; i < targets.length(); i++) {
+				JSONObject target = targets.getJSONObject(i);
+				double areaSize = target.getDouble("ta");
+				if (areaSize < largestAreaSize) continue;
+		
+				largestAreaIndex = i;
+				largestAreaSize = areaSize;
 			}
 
-			JSONArray poseArray = jsonResults.getJSONArray(allianceSidePose);
+			JSONObject largestAreaTarget = targets.getJSONObject(largestAreaIndex);
+			JSONArray poseArray = largestAreaTarget.getJSONArray("t6r_fs");
+
 
 			Pose2d fieldRelativePose = new Pose2d(
 					poseArray.getDouble(0), poseArray.getDouble(1),
@@ -168,8 +173,16 @@ public class Limelight {
 
 	}
 
+	/**
+	 * 
+	 * DO NOT USE
+	 * <p>
+	 * Doesn't work beacuse limelight does not return a timestamp through networktables
+	 * 
+	 * @return a bad value
+	 */
 	public FluidicalPoseInfo getBotPoseViaNetworkTables() {
-		
+		// Doesn't work beacuse limelight does not return a timestamp outside of json
 		try {
 			Alliance alliance = DriverStation.getAlliance();
 			if (alliance == Alliance.Invalid) throw new Exception("Alliance not Found!");
