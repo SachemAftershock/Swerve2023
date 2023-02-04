@@ -185,6 +185,10 @@ public class DriveSubsystem extends AftershockSubsystem {
 		return Rotation2d.fromDegrees(360.0 - mNavx.getYaw());
 	}
 
+	public double getYaw() {
+		return mNavx.getYaw();
+	}
+
 	public void drive(ChassisSpeeds chassisSpeeds) {
 		mChassisSpeeds = chassisSpeeds;
 	}
@@ -204,7 +208,7 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 		FluidicalPoseInfo poseInfo = mLimelight.getBotPose();
 
-		System.out.println(poseInfo);
+		//System.out.println(poseInfo);
 		
 		if(poseInfo != null && poseInfo.isValidTarget()) {
 			mPoseEstimator.addVisionMeasurement(poseInfo.getPose(), poseInfo.getTimestamp());

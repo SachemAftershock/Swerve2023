@@ -9,7 +9,7 @@ import frc.robot.subsystems.DriveSubsystem;
 import static frc.robot.Constants.DriveConstants.*;
 
 
-public class StrafeAlignCommand extends CommandBase {
+public class StrafeAlignCommandContinous extends CommandBase {
     
     private DriveSubsystem mDrive;
     private Limelight mLimelight;
@@ -17,7 +17,7 @@ public class StrafeAlignCommand extends CommandBase {
     private final PID mStrafePidY;
     private boolean mIsFinished = false;
 
-    public StrafeAlignCommand(DriveSubsystem drive, Limelight limelight) {
+    public StrafeAlignCommandContinous(DriveSubsystem drive, Limelight limelight) {
         mDrive = drive;
         mLimelight = limelight;
         mStrafePidX = new PID();
@@ -46,10 +46,10 @@ public class StrafeAlignCommand extends CommandBase {
         //Checking to see if limelight is in range and we see the target
         if(!(mLimelight.getTy() > kMinimumDistanceFromTarget && mLimelight.getTy() < kMaximumDistanceFromTarget)) return;
         
-        double speedX = mStrafePidX.update(mLimelight.getTx(), 0) * kMaxVelocityMetersPerSecond;  
-        double speedY = -(mStrafePidY.update(mLimelight.getTy(), kMinimumDistanceFromTarget) *  kMaxVelocityMetersPerSecond);
+        double speedX = mStrafePidX.update(mLimelight.getTx(), 0) * kMaxStrafeVelocity;
+        double speedY = -(mStrafePidY.update(mLimelight.getTy(), kMinimumDistanceFromTarget) *  kMaxStrafeVelocity);
     
-        System.out.println("Speed X --> " + speedX + "Speed Y --> " + speedY);
+        //System.out.println("Speed X --> " + speedX + "Speed Y --> " + speedY);
         
         mDrive.drive(new ChassisSpeeds(speedY, speedX, 0));
     }
@@ -62,9 +62,7 @@ public class StrafeAlignCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return (Math.abs(mStrafePidX.getError()) <= kStrafeAlignEpsilonX) 
-            && (Math.abs(mStrafePidY.getError())) <= kStrafeAlignEpsilonY 
-            || mIsFinished;
+        return false;
     }
 
 }

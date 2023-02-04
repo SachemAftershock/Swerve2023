@@ -21,12 +21,32 @@ public final class Constants {
             eX, eY
         }
 
+        public static enum TurnAngle {
+            eForward(0), eLeft(90), eRight(-90), eBack(180), eDefault(999);
+
+            private double mAngle; 
+
+            private TurnAngle(double angle) {
+                mAngle = angle;
+            }
+
+            public double getAngle() {
+                return mAngle;
+            }
+            
+        }
+
         public static final double kDriveControllerDeadband = 0.05;
-        public static final boolean kSquareAxis = true; 
+        public static final boolean kSquareAxis = false;
 
         public static final double[] kDriveAngularGains = {0.02, 0.0, 0.0}; //dont use I it sucks - Shreyas
         public static final double[] kDriveLinearGains = {0.4, 0.0, 0.0};
-        public static final double[] kStrafeAlignGainse = {0.01, 0, 0};
+        public static final double[] kStrafeAlignGainse = {0.025, 0, 0};
+
+        public static final double kMaxStrafeVelocity = 5.0; //TODO: figure out an actual way to find the number
+
+        public static final double kMinimumDistanceFromTarget = -18.37; //In degrees
+        public static final double kMaximumDistanceFromTarget = -2.5;
 
         public static final double kPX = 1.25;
         public static final double kPY = 1.25;
@@ -62,7 +82,8 @@ public final class Constants {
         public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI;
 
         public static final double kLimelightOutOfBounds = 45;
-        public static final double kStrafeAlignEpsilon = .75;
+        public static final double kStrafeAlignEpsilonX = 0.75;
+        public static final double kStrafeAlignEpsilonY = 2.0;
     }
 
 
