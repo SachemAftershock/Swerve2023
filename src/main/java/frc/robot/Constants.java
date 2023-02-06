@@ -42,6 +42,7 @@ public final class Constants {
         public static final double[] kDriveAngularGains = {0.02, 0.0, 0.0}; //dont use I it sucks - Shreyas
         public static final double[] kDriveLinearGains = {0.4, 0.0, 0.0};
         public static final double[] kStrafeAlignGainse = {0.025, 0, 0};
+        public static final double[] kBalanceRobotGains = {0.0, 0.0, 0.0};
 
         public static final double kMaxStrafeVelocity = 5.0; //TODO: figure out an actual way to find the number
 
@@ -53,6 +54,7 @@ public final class Constants {
 
         public static final double kAutoRotateEpsilon = 3.0;
         public static final double kLinearDriveEpsilon = 0.0;
+        public static final double kBalanceRobotEpsilon = 1.0;
         
         
         public static final double kDrivetrainTrackwidthMeters = 0.5461;
@@ -86,6 +88,67 @@ public final class Constants {
         public static final double kStrafeAlignEpsilonY = 2.0;
     }
 
+    public static enum ButtonState {
+        eCone, eCube, eNone, eHigh, eMid, eFloor, eHumanStation, ePark, eIntake, eEject
+    }
 
+    public static enum DriveLocationLUT {
 
+        eSlot1(0.0, 0.0), eSlot2(0.0, 0.0), eSlot3(0.0, 0.0),
+        eSlot4(0.0, 0.0), eSlot5(0.0, 0.0), eSlot6(0.0, 0.0),
+        eSlot7(0.0, 0.0), eSlot8(0.0, 0.0), eSlot9(0.0, 0.0), 
+        
+        eHumanStation(0.0, 0.0), eNone(0.0, 0.0);
+
+        private double mXCoord;
+        private double mYCoord;
+
+        private DriveLocationLUT(double x, double y) {
+            mXCoord = x;
+            mYCoord = y;
+        }
+
+        public double getXCoord() {
+            return mXCoord;
+        }
+
+        public double getYCoord() {
+            return mYCoord;
+        }
+
+    }
+
+    public static enum ElevatorStateLUT{
+
+        eFloorCube(0.0,0.0),  
+        eFloorCone(0.0,0.0),
+
+        eHumanStationCone(0.0,0.0), 
+        eHumanStationCube(0.0,0.0),
+
+        eMidCone(0.0, 0.0),
+        eMidCube(0.0, 0.0),
+
+        eHighCone(0.0, 0.0),
+        eHighCube(0.0, 0.0),
+        
+        ePark(0.0,0.0);
+
+        private double mElevatorHeight;
+        private double mArmExtension;
+
+        private ElevatorStateLUT(double elevatorHeight, double armExtension) {
+            mElevatorHeight = elevatorHeight;
+            mArmExtension = armExtension;
+        }
+
+        public double getElevatorHeight() {
+            return mElevatorHeight;
+        }
+
+        public double getArmExtension() {
+            return mArmExtension;
+        }
+
+    }
 }

@@ -45,6 +45,7 @@ public class RobotContainer {
 
   // The robot's subsystems and commands are defined here...
   private DriveSubsystem mDriveSubsystem = DriveSubsystem.getInstance();
+  private StateLogic mStateLogic = StateLogic.getInstance();
   
   private final Joystick mControllerPrimary = new Joystick(0);
   private final Joystick mControllerSecondary = new Joystick(1);
@@ -95,6 +96,8 @@ public class RobotContainer {
   public void periodic() {
 
     //System.out.println(mControllerSecondary.getPOV());
+
+    mStateLogic.periodic();
 
     if(mControllerSecondary.getPOV() == -1) {
       setTurnAngle(TurnAngle.eDefault);

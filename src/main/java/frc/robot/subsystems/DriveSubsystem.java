@@ -189,6 +189,15 @@ public class DriveSubsystem extends AftershockSubsystem {
 		return mNavx.getYaw();
 	}
 
+	public double getPitch() {
+		return mNavx.getPitch();
+	}
+
+	public double getRoll() {
+		return mNavx.getRoll();
+	}
+
+
 	public void drive(ChassisSpeeds chassisSpeeds) {
 		mChassisSpeeds = chassisSpeeds;
 	}
