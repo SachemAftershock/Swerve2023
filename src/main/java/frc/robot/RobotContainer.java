@@ -25,8 +25,10 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.DriveLocationLUT;
 import frc.robot.Constants.DriveConstants.CardinalDirection;
 import frc.robot.Constants.DriveConstants.TurnAngle;
+import frc.robot.commands.DriveToSlotCommandContinous;
 import frc.robot.commands.FollowTrajectoryCommandFactory;
 import frc.robot.commands.LinearDriveCommand;
 import frc.robot.commands.ManualDriveCommand;
@@ -89,7 +91,9 @@ public class RobotContainer {
   private void configureButtonBindings() {
 
 	  mStrafeAutoAlign = new JoystickButton(mControllerPrimary, Joystick.ButtonType.kTrigger.value);
-    mStrafeAutoAlign.whileTrue(new StrafeAlignCommandContinous(mDriveSubsystem, mDriveSubsystem.getLimelight()));
+    //mStrafeAutoAlign.whileTrue(new StrafeAlignCommandContinous(mDriveSubsystem, mDriveSubsystem.getLimelight()));
+    mStrafeAutoAlign.whileTrue(new DriveToSlotCommandContinous(mDriveSubsystem, mStateLogic, DriveLocationLUT.eSlot1));
+
 
   }
 
@@ -189,6 +193,7 @@ public class RobotContainer {
     //   //FollowTrajectoryCommandFactory.generateCommand(mDriveSubsystem, trajectory2)
     //   //new RotateDriveCommand(mDriveSubsystem, -30)
     // );
+
   }
 
   private static double deadband(double value, double deadband) {

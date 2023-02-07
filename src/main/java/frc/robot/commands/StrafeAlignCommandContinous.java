@@ -35,7 +35,7 @@ public class StrafeAlignCommandContinous extends CommandBase {
         }
 
         mDrive.drive(new ChassisSpeeds());
-        mStrafePidX.start(kStrafeAlignGainse);
+        mStrafePidX.start(kStrafeAlignGains);
         mStrafePidY.start(kDriveAngularGains);
     }
 

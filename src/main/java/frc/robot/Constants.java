@@ -36,18 +36,20 @@ public final class Constants {
             
         }
 
-        public static final double kDriveControllerDeadband = 0.05;
+        public static final double kDriveControllerDeadband = 0.15;//0.05;
         public static final boolean kSquareAxis = false;
 
         public static final double[] kDriveAngularGains = {0.02, 0.0, 0.0}; //dont use I it sucks - Shreyas
         public static final double[] kDriveLinearGains = {0.4, 0.0, 0.0};
-        public static final double[] kStrafeAlignGainse = {0.025, 0, 0};
+        public static final double[] kStrafeAlignGains = {0.025, 0, 0};
+        public static final double[] kDriveToTargetGains = {0.50, 0, 0};
         public static final double[] kBalanceRobotGains = {0.0, 0.0, 0.0};
 
         public static final double kMaxStrafeVelocity = 5.0; //TODO: figure out an actual way to find the number
 
         public static final double kMinimumDistanceFromTarget = -18.37; //In degrees
         public static final double kMaximumDistanceFromTarget = -2.5;
+        public static final double kMinimumDistanceForAutoDrive = 0.0; //TODO: find the this distance to avoid charged up station 
 
         public static final double kPX = 1.25;
         public static final double kPY = 1.25;
@@ -55,6 +57,7 @@ public final class Constants {
         public static final double kAutoRotateEpsilon = 3.0;
         public static final double kLinearDriveEpsilon = 0.0;
         public static final double kBalanceRobotEpsilon = 1.0;
+        public static final double kDriveToTargetEpsilon = 0.10; //In meters
         
         
         public static final double kDrivetrainTrackwidthMeters = 0.5461;
@@ -94,7 +97,7 @@ public final class Constants {
 
     public static enum DriveLocationLUT {
 
-        eSlot1(0.0, 0.0), eSlot2(0.0, 0.0), eSlot3(0.0, 0.0),
+        eSlot1(7.2, -2.9), eSlot2(0.0, 0.0), eSlot3(0.0, 0.0),
         eSlot4(0.0, 0.0), eSlot5(0.0, 0.0), eSlot6(0.0, 0.0),
         eSlot7(0.0, 0.0), eSlot8(0.0, 0.0), eSlot9(0.0, 0.0), 
         

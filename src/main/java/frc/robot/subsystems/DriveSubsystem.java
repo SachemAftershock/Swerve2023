@@ -217,8 +217,10 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 		FluidicalPoseInfo poseInfo = mLimelight.getBotPose();
 
-		//System.out.println(poseInfo);
-		
+		// if(poseInfo != null && poseInfo.isValidTarget()) {
+		// 	System.out.println("X -->" + poseInfo.getPose().getX() + " Y --> " + poseInfo.getPose().getY());
+		// }
+
 		if(poseInfo != null && poseInfo.isValidTarget()) {
 			mPoseEstimator.addVisionMeasurement(poseInfo.getPose(), poseInfo.getTimestamp());
 		}
