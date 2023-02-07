@@ -28,6 +28,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveLocationLUT;
 import frc.robot.Constants.DriveConstants.CardinalDirection;
 import frc.robot.Constants.DriveConstants.TurnAngle;
+import frc.robot.commands.BalanceRobotContinousCommand;
 import frc.robot.commands.DriveToSlotCommandContinous;
 import frc.robot.commands.FollowTrajectoryCommandFactory;
 import frc.robot.commands.LinearDriveCommand;
@@ -53,6 +54,8 @@ public class RobotContainer {
   private final Joystick mControllerSecondary = new Joystick(1);
 
   private JoystickButton mStrafeAutoAlign; 
+  private JoystickButton mChargeStationAlign;
+
   private static TurnAngle mTurnAngle;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -93,7 +96,7 @@ public class RobotContainer {
 	  mStrafeAutoAlign = new JoystickButton(mControllerPrimary, Joystick.ButtonType.kTrigger.value);
     //mStrafeAutoAlign.whileTrue(new StrafeAlignCommandContinous(mDriveSubsystem, mDriveSubsystem.getLimelight()));
     mStrafeAutoAlign.whileTrue(new DriveToSlotCommandContinous(mDriveSubsystem, mStateLogic, DriveLocationLUT.eSlot1));
-
+    //mStrafeAutoAlign.whileTrue(new BalanceRobotContinousCommand(mDriveSubsystem));
 
   }
 

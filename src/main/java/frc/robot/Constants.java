@@ -43,13 +43,13 @@ public final class Constants {
         public static final double[] kDriveLinearGains = {0.4, 0.0, 0.0};
         public static final double[] kStrafeAlignGains = {0.025, 0, 0};
         public static final double[] kDriveToTargetGains = {0.50, 0, 0};
-        public static final double[] kBalanceRobotGains = {0.0, 0.0, 0.0};
+        public static final double[] kBalanceRobotGains = {0.02, 0.0, 0.0};
 
         public static final double kMaxStrafeVelocity = 5.0; //TODO: figure out an actual way to find the number
 
         public static final double kMinimumDistanceFromTarget = -18.37; //In degrees
         public static final double kMaximumDistanceFromTarget = -2.5;
-        public static final double kMinimumDistanceForAutoDrive = 0.0; //TODO: find the this distance to avoid charged up station 
+        public static final double kMinimumDistanceForAutoDrive = 0.25; //TODO: find the this distance to avoid charged up station 
 
         public static final double kPX = 1.25;
         public static final double kPY = 1.25;

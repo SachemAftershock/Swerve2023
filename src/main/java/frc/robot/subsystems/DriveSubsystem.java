@@ -4,8 +4,11 @@ import com.kauailabs.navx.frc.AHRS;
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalSource;
 import edu.wpi.first.wpilibj.SPI;
 import frc.lib.AftershockSubsystem;
+import frc.lib.Lidar;
 import frc.lib.Limelight;
 import frc.lib.Limelight.FluidicalPoseInfo;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -88,6 +91,7 @@ public class DriveSubsystem extends AftershockSubsystem {
 	private final SwerveModule mBackLeftModule;
 	private final SwerveModule mBackRightModule;
 
+
 	private ChassisSpeeds mChassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
 	private final Limelight mLimelight;
@@ -163,6 +167,7 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 		mLimelight = new Limelight("limelight");
 
+
 	}
 
 	/**
@@ -215,11 +220,12 @@ public class DriveSubsystem extends AftershockSubsystem {
 	@Override
 	public void periodic() {
 
+
 		FluidicalPoseInfo poseInfo = mLimelight.getBotPose();
 
-		// if(poseInfo != null && poseInfo.isValidTarget()) {
-		// 	System.out.println("X -->" + poseInfo.getPose().getX() + " Y --> " + poseInfo.getPose().getY());
-		// }
+		if(poseInfo != null && poseInfo.isValidTarget()) {
+			System.out.println("X -->" + poseInfo.getPose().getX() + " Y --> " + poseInfo.getPose().getY());
+		}
 
 		if(poseInfo != null && poseInfo.isValidTarget()) {
 			mPoseEstimator.addVisionMeasurement(poseInfo.getPose(), poseInfo.getTimestamp());

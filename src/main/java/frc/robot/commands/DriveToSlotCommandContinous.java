@@ -42,8 +42,8 @@ public class DriveToSlotCommandContinous extends CommandBase {
         System.out.println("Drive to Slot command starting ");
 
         //mDriveLocation = mStateLogic.getRobotState().getDriveLocation();
-        mXCoordSetpoint = mDriveLocation.getXCoord();
-        mYCoordSetpoint = mDriveLocation.getYCoord();
+        mXCoordSetpoint = mDriveLocation.getXCoord() - 0.5;
+        mYCoordSetpoint = mDriveLocation.getYCoord() - 0.5;
 
         mPIDX.start(DriveConstants.kDriveToTargetGains);
         mPIDY.start(DriveConstants.kDriveToTargetGains);
@@ -82,7 +82,7 @@ public class DriveToSlotCommandContinous extends CommandBase {
             return;
         }
 
-        System.out.println("X --> " + xCurrent + " Y--> " + yCurrent + " X speed --> " + xSpeed + " Y speed --> " + ySpeed);
+        //System.out.println("X --> " + xCurrent + " Y--> " + yCurrent + " X speed --> " + xSpeed + " Y speed --> " + ySpeed);
         mDrive.drive(new ChassisSpeeds(xSpeed, ySpeed, 0));
 
     }

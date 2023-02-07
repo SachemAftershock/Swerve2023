@@ -143,6 +143,8 @@ public class Limelight {
 
 			JSONArray targets = jsonResults.getJSONArray("Fiducial");
 
+			if (targets.isEmpty()) return null;
+
 			int largestAreaIndex = 0;
 			double largestAreaSize = 0;
 
@@ -178,7 +180,7 @@ public class Limelight {
 	 * DO NOT USE
 	 * <p>
 	 * Doesn't work beacuse limelight does not return a timestamp through networktables
-	 * 
+	 * @deprecated
 	 * @return a bad value
 	 */
 	public FluidicalPoseInfo getBotPoseViaNetworkTables() {
@@ -205,7 +207,7 @@ public class Limelight {
 
 			return new FluidicalPoseInfo(fieldRelativePose, isValid, ts);
 		} catch (Exception e) {
-			DriverStation.reportError("Gave error with Limelight Pose", e.getStackTrace());
+			//DriverStation.reportError("Gave error with Limelight Pose", e.getStackTrace());
 		}
 		
 		return null;
