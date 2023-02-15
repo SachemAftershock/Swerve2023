@@ -215,6 +215,19 @@ public class DriveSubsystem extends AftershockSubsystem {
 	public void initialize() {
 		//mPoseEstimator.resetPosition(new Pose2d(), new Rotation2d());
 		zeroGyroscope();
+
+		FluidicalPoseInfo poseInfo = mLimelight.getBotPose();
+
+		for(int x=0; x<1000; x++) {
+
+			System.out.println("Finding targt");
+
+			if(poseInfo != null && poseInfo.isValidTarget()) {
+				Pose2d pose = poseInfo.getPose();
+				mPoseEstimator.resetPosition(getGyroscopeRotation(), getPositions(), pose);
+			}
+			
+		}
 	}
 
 	@Override
@@ -223,10 +236,12 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 		FluidicalPoseInfo poseInfo = mLimelight.getBotPose();
 
-		if(poseInfo != null && poseInfo.isValidTarget()) {
-			System.out.println("X -->" + poseInfo.getPose().getX() + " Y --> " + poseInfo.getPose().getY());
-		}
+		// if(poseInfo != null && poseInfo.isValidTarget()) {
+		// 	System.out.println("X -->" + poseInfo.getPose().getX() + " Y --> " + poseInfo.getPose().getY());
+		// }
 
+		System.out.println("X --> " + mPoseEstimator.getEstimatedPosition().getX() + " Y --> " + mPoseEstimator.getEstimatedPosition().getY());
+		
 		if(poseInfo != null && poseInfo.isValidTarget()) {
 			mPoseEstimator.addVisionMeasurement(poseInfo.getPose(), poseInfo.getTimestamp());
 		}
