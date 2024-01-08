@@ -101,14 +101,18 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 		//mPhotonCamera = new PhotonCamera("photonvision");
 
-		mFrontLeftModule = Mk4SwerveModuleHelper.createFalcon500Neo(
+		//mFrontLeftModule = Mk4SwerveModuleHelper.createFalcon500Neo(
+			mFrontLeftModule = Mk4SwerveModuleHelper.createNeo(
+			//change functions
+			
 				// This parameter is optional, but will allow you to see the current state of
 				// the module on the dashboard.
 				tab.getLayout("Front Left Module", BuiltInLayouts.kList)
 						.withSize(2, 4)
 						.withPosition(0, 0),
 				// This can either be STANDARD or FAST depending on your gear configuration
-				Mk4SwerveModuleHelper.GearRatio.L1,
+				//L1 before
+				Mk4SwerveModuleHelper.GearRatio.L3,
 				// This is the ID of the drive motor
 				kFrontLeftDriveMotorId,
 				// This is the ID of the steer motor
@@ -119,31 +123,31 @@ public class DriveSubsystem extends AftershockSubsystem {
 				// zero is facing straight forward)
 				kFrontLeftSteerOffset);
 
-		mFrontRightModule = Mk4SwerveModuleHelper.createFalcon500Neo(
+		mFrontRightModule = Mk4SwerveModuleHelper.createNeo(
 				tab.getLayout("Front Right Module", BuiltInLayouts.kList)
 						.withSize(2, 4)
 						.withPosition(2, 0),
-				Mk4SwerveModuleHelper.GearRatio.L1,
+				Mk4SwerveModuleHelper.GearRatio.L3,
 				kFrontRightDriveMotorId,
 				kFrontRightSteerMotorId,
 				kFrontRightSteerEncoderId,
 				kFrontRightSteerOffset);
 
-		mBackLeftModule = Mk4SwerveModuleHelper.createFalcon500Neo(
+		mBackLeftModule = Mk4SwerveModuleHelper.createNeo(
 				tab.getLayout("Back Left Module", BuiltInLayouts.kList)
 						.withSize(2, 4)
 						.withPosition(4, 0),
-				Mk4SwerveModuleHelper.GearRatio.L1,
+				Mk4SwerveModuleHelper.GearRatio.L3,
 				kBackLeftDriveMotorId,
 				kBackLeftSteerMotorId,
 				kBackLeftSteerEncoderId,
 				kBackLeftSteerOffset);
 
-		mBackRightModule = Mk4SwerveModuleHelper.createFalcon500Neo(
+		mBackRightModule = Mk4SwerveModuleHelper.createNeo(
 				tab.getLayout("Back Right Module", BuiltInLayouts.kList)
 						.withSize(2, 4)
 						.withPosition(6, 0),
-				Mk4SwerveModuleHelper.GearRatio.L1,
+				Mk4SwerveModuleHelper.GearRatio.L3,
 				kBackRightDriveMotorId,
 				kBackRightSteerMotorId,
 				kBackRightSteerEncoderId,
@@ -203,8 +207,8 @@ public class DriveSubsystem extends AftershockSubsystem {
 	public void periodic() {
 
 		FluidicalPoseInfo poseInfo = mLimelight.getBotPose();
-
-		System.out.println(poseInfo);
+		//delete
+		//System.out.println(poseInfo);
 		
 		if(poseInfo != null && poseInfo.isValidTarget()) {
 			mPoseEstimator.addVisionMeasurement(poseInfo.getPose(), poseInfo.getTimestamp());

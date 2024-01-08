@@ -25,12 +25,15 @@ public class FollowTrajectoryCommandFactory {
             )
         );
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
+        //quickest way around a circle
         
         return (
             new SwerveControllerCommand(
                 trajectory, 
+                //gets current pose
                 driveSubsystem::getPose,
                 driveSubsystem.getKinematics(),
+                //gives the speed and angle of a single module for all modules
                 new PIDController(kPX, 0, 0), new PIDController(kPY, 0, 0), thetaController, 
                 driveSubsystem::drive,
                 driveSubsystem

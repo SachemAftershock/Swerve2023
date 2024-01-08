@@ -59,8 +59,8 @@ public class LinearDriveCommand extends CommandBase {
 
 		double speed = mPid.update(mCurrentPose, mLinearSetpoint) 
             * DriveConstants.kMaxVelocityMetersPerSecond;
-
-        System.out.println(speed);
+        //delete
+        //System.out.println(speed);
         
         
         if(direction) {
