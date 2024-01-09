@@ -39,18 +39,18 @@ public final class Constants {
         
         // angles in radians. 
         // to convert from degrees to radians multiply by pi/180 
-        public static final double kFrontLeftSteerOffset = 0;//-0.35 - (Math.PI / 2.0);//-.35;
-        public static final double kFrontRightSteerOffset = 0;//0.4 - (Math.PI / 2.0);//0.40;
-        public static final double kBackLeftSteerOffset = (Math.PI / 2.0);//(0.0 * Math.PI) / 180.0 + (Math.PI / 4.0);//0.45 - (Math.PI / 2.0);//.45;
-        public static final double kBackRightSteerOffset = 0;//-0.5 - (Math.PI / 2.0);//-.5;
+        public static final double kFrontLeftSteerOffset = (10.0 * Math.PI) / 180.0 ;//4 //-0.35 - (Math.PI / 2.0);//-.35;
+        public static final double kFrontRightSteerOffset = (-85.0 * Math.PI) / 180;//10 //0.4 - (Math.PI / 2.0);//0.40;
+        public static final double kBackLeftSteerOffset = (126.0 * Math.PI) / 180.0;//7 //(0.0 * Math.PI) / 180.0 + (Math.PI / 4.0);//0.45 - (Math.PI / 2.0);//.45;
+        public static final double kBackRightSteerOffset = (-52.0 * Math.PI) / 180.0; //9 //-0.5 - (Math.PI / 2.0);//-.5;
 
 
-        private static final double kMk4L1DriveReduction = (14.0 / 50.0) * (25.0 / 19.0) * (15.0 / 45.0);
-        private static final double kMk4WheelDiameter = 0.10033;
+        private static final double kMk4iL1DriveReduction = (14.0 / 50.0) * (25.0 / 19.0) * (15.0 / 45.0);
+        private static final double kMk4iWheelDiameter = 0.10033;
 
         
         public static final double kMaxVelocityMetersPerSecond = 6380.0 / 60.0 *
-            kMk4L1DriveReduction * kMk4WheelDiameter * Math.PI;
+            kMk4iL1DriveReduction * kMk4iWheelDiameter * Math.PI;
 
         //TODO: Change
         public static final double kMaxAccelerationMetersPerSecondSquared = kMaxVelocityMetersPerSecond * 0.25;
